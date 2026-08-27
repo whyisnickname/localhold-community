@@ -6,7 +6,7 @@ import Foundation
 import UIKit
 import UniformTypeIdentifiers
 
-public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeHostApi {
+public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeHostApi, @unchecked Sendable {
   private let service = IOSVaultCryptoService()
   private lazy var biometricCoordinator = IOSBiometricCoordinator(service: service)
   private weak var recoveryAlert: UIAlertController?
@@ -168,12 +168,14 @@ public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeH
   }
 
   func copySensitiveClipboard(request: SensitiveClipboardRequest) throws -> StatusReply {
+    let requestBytes = request.utf8Value.data
+    let expirySeconds = request.expirySeconds
     MainActor.assumeIsolated {
-      var bytes = request.utf8Value.data
+      var bytes = requestBytes
       defer { bytes.resetBytes(in: 0..<bytes.count) }
       guard !bytes.isEmpty,
             bytes.count <= 2 * 1024 * 1024,
-            [15, 30, 60, 120].contains(request.expirySeconds),
+            [15, 30, 60, 120].contains(expirySeconds),
             let value = String(data: bytes, encoding: .utf8)
       else { return StatusReply(error: .invalidRequest) }
       let pasteboard = UIPasteboard.general
@@ -181,13 +183,13 @@ public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeH
         [[UTType.utf8PlainText.identifier: value]],
         options: [
           .localOnly: true,
-          .expirationDate: Date(timeIntervalSinceNow: TimeInterval(request.expirySeconds)),
+          .expirationDate: Date(timeIntervalSinceNow: TimeInterval(expirySeconds)),
         ]
       )
       clipboardDigest = Data(SHA256.hash(data: Data(value.utf8)))
       clipboardChangeCount = pasteboard.changeCount
       let generation = pasteboard.changeCount
-      DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Int(request.expirySeconds))) {
+      DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Int(expirySeconds))) {
         [weak self] in
         MainActor.assumeIsolated {
           if self?.clipboardChangeCount == generation {

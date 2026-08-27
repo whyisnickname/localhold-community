@@ -130,6 +130,13 @@ void main() {
       generated,
       contains('extension StatusReply: @unchecked Sendable {}'),
     );
+    expect(generated, contains('protocol KeyBridgeHostApi: Sendable'));
+    expect(
+      generated,
+      contains('class KeyBridgeMessagesPigeonReplyBox: @unchecked Sendable'),
+    );
+    expect(generated, contains('replyBox.call(wrapResult(result))'));
+    expect(plugin, contains('KeyBridgeHostApi, @unchecked Sendable'));
     expect(plugin, contains('MainActor.assumeIsolated'));
     expect(
       plugin,

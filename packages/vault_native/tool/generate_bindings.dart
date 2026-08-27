@@ -37,7 +37,7 @@ Future<void> main() async {
 
   _redactKotlinEmergencyErrors(File(_kotlinOutput));
   _redactSwiftEmergencyErrors(File(_swiftOutput));
-  _addSwiftAsyncReplySendability(File(_swiftOutput));
+  _addSwiftConcurrencyBoundary(File(_swiftOutput));
   _redactSensitiveMessageStrings(
     dart: File(_dartOutput),
     kotlin: File(_kotlinOutput),
@@ -55,9 +55,9 @@ Future<void> main() async {
   }
 }
 
-void _addSwiftAsyncReplySendability(File file) {
+void _addSwiftConcurrencyBoundary(File file) {
   var source = file.readAsStringSync();
-  const marker = '''
+  const replyTypeMarker = '''
 
 // Pigeon 28 does not mark async reply value types Sendable. Swift 6 requires
 // this explicit reviewed boundary when results return to the main-actor reply.
@@ -70,7 +70,70 @@ extension StatusReply: @unchecked Sendable {}
       'Pinned Pigeon Swift async reply types changed; review required.',
     );
   }
-  source += marker;
+  const protocolSource = 'protocol KeyBridgeHostApi {';
+  if (!source.contains(protocolSource)) {
+    throw StateError(
+      'Pinned Pigeon Swift host protocol changed; review required.',
+    );
+  }
+  source = source.replaceFirst(
+    protocolSource,
+    'protocol KeyBridgeHostApi: Sendable {',
+  );
+
+  const protocolComment =
+      '/// Generated protocol from Pigeon that represents a handler of messages from Flutter.';
+  if (!source.contains(protocolComment)) {
+    throw StateError(
+      'Pinned Pigeon Swift protocol marker changed; review required.',
+    );
+  }
+  const replyBox = '''
+// Flutter's reply closure is invoked only from the generated main-actor task.
+// The wrapper prevents the non-Sendable closure from escaping that reviewed path.
+private final class KeyBridgeMessagesPigeonReplyBox: @unchecked Sendable {
+  private let reply: (Any?) -> Void
+
+  init(_ reply: @escaping (Any?) -> Void) {
+    self.reply = reply
+  }
+
+  @MainActor
+  func call(_ value: Any?) {
+    reply(value)
+  }
+}
+
+''';
+  source = source.replaceFirst(protocolComment, '$replyBox$protocolComment');
+
+  const taskSource = '        Task { @MainActor in';
+  final taskCount = taskSource.allMatches(source).length;
+  if (taskCount != 3) {
+    throw StateError(
+      'Pinned Pigeon Swift async task count changed; expected 3, found $taskCount.',
+    );
+  }
+  source = source.replaceAll(
+    taskSource,
+    '        let replyBox = KeyBridgeMessagesPigeonReplyBox(reply)\n$taskSource',
+  );
+  const asyncReplySource = '''            reply(wrapResult(result))
+          } catch {
+            reply(wrapError(error))''';
+  final asyncReplyCount = asyncReplySource.allMatches(source).length;
+  if (asyncReplyCount != 3) {
+    throw StateError(
+      'Pinned Pigeon Swift async reply count changed; expected 3, found $asyncReplyCount.',
+    );
+  }
+  source = source.replaceAll(
+    asyncReplySource,
+    '''            replyBox.call(wrapResult(result))
+          } catch {
+            replyBox.call(wrapError(error))''',
+  );
+  source += replyTypeMarker;
   file.writeAsStringSync(source);
 }
 

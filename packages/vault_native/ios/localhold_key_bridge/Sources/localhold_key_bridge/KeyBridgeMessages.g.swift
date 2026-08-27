@@ -844,8 +844,23 @@ class KeyBridgeMessagesPigeonCodec: FlutterStandardMessageCodec, @unchecked Send
 }
 
 
+// Flutter's reply closure is invoked only from the generated main-actor task.
+// The wrapper prevents the non-Sendable closure from escaping that reviewed path.
+private final class KeyBridgeMessagesPigeonReplyBox: @unchecked Sendable {
+  private let reply: (Any?) -> Void
+
+  init(_ reply: @escaping (Any?) -> Void) {
+    self.reply = reply
+  }
+
+  @MainActor
+  func call(_ value: Any?) {
+    reply(value)
+  }
+}
+
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
-protocol KeyBridgeHostApi {
+protocol KeyBridgeHostApi: Sendable {
   func createVaultKey(request: CreateVaultKeyRequest) throws -> VaultSessionReply
   func openVaultSession(request: OpenVaultSessionRequest) throws -> VaultSessionReply
   func encryptPayload(request: EncryptPayloadRequest) throws -> PayloadReply
@@ -1093,12 +1108,13 @@ class KeyBridgeHostApiSetup {
       enableBiometricChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let sessionHandleArg = args[0] as! String
+        let replyBox = KeyBridgeMessagesPigeonReplyBox(reply)
         Task { @MainActor in
           do {
             let result = try await api.enableBiometric(sessionHandle: sessionHandleArg)
-            reply(wrapResult(result))
+            replyBox.call(wrapResult(result))
           } catch {
-            reply(wrapError(error))
+            replyBox.call(wrapError(error))
           }
         }
       }
@@ -1110,12 +1126,13 @@ class KeyBridgeHostApiSetup {
       openVaultWithBiometricChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let vaultIdArg = args[0] as! String
+        let replyBox = KeyBridgeMessagesPigeonReplyBox(reply)
         Task { @MainActor in
           do {
             let result = try await api.openVaultWithBiometric(vaultId: vaultIdArg)
-            reply(wrapResult(result))
+            replyBox.call(wrapResult(result))
           } catch {
-            reply(wrapError(error))
+            replyBox.call(wrapError(error))
           }
         }
       }
@@ -1127,12 +1144,13 @@ class KeyBridgeHostApiSetup {
       disableBiometricChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let sessionHandleArg = args[0] as! String
+        let replyBox = KeyBridgeMessagesPigeonReplyBox(reply)
         Task { @MainActor in
           do {
             let result = try await api.disableBiometric(sessionHandle: sessionHandleArg)
-            reply(wrapResult(result))
+            replyBox.call(wrapResult(result))
           } catch {
-            reply(wrapError(error))
+            replyBox.call(wrapError(error))
           }
         }
       }

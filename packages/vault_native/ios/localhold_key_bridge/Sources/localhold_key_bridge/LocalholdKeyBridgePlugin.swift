@@ -170,7 +170,7 @@ public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeH
   func copySensitiveClipboard(request: SensitiveClipboardRequest) throws -> StatusReply {
     let requestBytes = request.utf8Value.data
     let expirySeconds = request.expirySeconds
-    MainActor.assumeIsolated {
+    return MainActor.assumeIsolated {
       var bytes = requestBytes
       defer { bytes.resetBytes(in: 0..<bytes.count) }
       guard !bytes.isEmpty,

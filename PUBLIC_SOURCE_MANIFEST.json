@@ -321,7 +321,7 @@
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/IOSBiometricWrapper.swift": "9327506b05a39a3454892508d2dfec5756dbf2e6bcf71cd094ff9d59fdb56e4d",
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/IOSVaultCryptoService.swift": "ad7cc0b14595d13517af38669f23cbd8cbf21abfd3fec2991469113252b70c3d",
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/KeyBridgeMessages.g.swift": "cbc922216cfd2ceb9369874d7929c7e8818c10d18984499f8daa482b5bbafc51",
-    "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/LocalholdKeyBridgePlugin.swift": "305c3c7020d2f16a73d9e5118ad3cfc321ae1d2f32dbe9ffa21a149f44a43e63",
+    "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/LocalholdKeyBridgePlugin.swift": "f2a89ecf2a5a48072d90c6eaa02fbc719aca65989d05ce4276d60b6681f667e3",
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/PrivacyInfo.xcprivacy": "a425125009cd112943593d34b5e193fa70bb5bb3627543dc292817043c7f2262",
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/RecoveryMnemonicCodec.swift": "a5f0a8a4e14c1bee80e604195f0fe560ea57d7272719c922facbbb9b9bed3339",
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/Resources/bip39_english.txt": "2f5eed53a4727b4bf8880d8f3f199efc90e58503646d9ff8eff3a2ed3b24dbda",
@@ -520,5 +520,5 @@
     "tool/verify_public_tree.py": "f3d4e59cb313b029d8743e68d0318e28293a4eb8e1cb1f89d3401907d082ca25"
   },
   "schema_version": 1,
-  "source_revision": "371f8953ec349927fcb78cbd3d816656a9343eb8"
+  "source_revision": "a0b7752cccb5ed212753c5f910887b3691558f91"
 }

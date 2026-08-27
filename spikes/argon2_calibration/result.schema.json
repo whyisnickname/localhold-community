@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://localhold.invalid/schemas/argon2-calibration-result-v1.json",
+  "title": "Localhold Argon2id calibration result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "recorded_at",
+    "platform",
+    "physical_device",
+    "device",
+    "build",
+    "library",
+    "profile",
+    "timing",
+    "safety",
+    "vector"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "run_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "platform": { "enum": ["android", "ios"] },
+    "physical_device": { "type": "boolean" },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manufacturer", "model", "os_version", "abi", "ram_mib"],
+      "properties": {
+        "manufacturer": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "model": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "os_version": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "abi": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "ram_mib": { "type": "integer", "minimum": 512, "maximum": 65536 }
+      }
+    },
+    "build": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revision", "mode"],
+      "properties": {
+        "revision": { "type": "string", "pattern": "^[0-9a-fA-F]{7,64}$" },
+        "mode": { "const": "release" }
+      }
+    },
+    "library": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "source_sha256"],
+      "properties": {
+        "name": { "const": "libsodium" },
+        "version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "source_sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "version", "memory_kib", "operations", "parallelism", "salt_bytes", "output_bytes"],
+      "properties": {
+        "algorithm": { "const": "argon2id" },
+        "version": { "const": 19 },
+        "memory_kib": { "enum": [65536, 98304, 131072] },
+        "operations": { "enum": [2, 3, 4] },
+        "parallelism": { "const": 1 },
+        "salt_bytes": { "const": 16 },
+        "output_bytes": { "const": 32 }
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["warmup_count", "samples_ms", "stress_successful_runs"],
+      "properties": {
+        "warmup_count": { "type": "integer", "minimum": 5 },
+        "samples_ms": {
+          "type": "array",
+          "minItems": 30,
+          "items": { "type": "number", "exclusiveMinimum": 0, "maximum": 60000 }
+        },
+        "stress_successful_runs": { "type": "integer", "minimum": 0, "maximum": 20 }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["oom", "crash", "anr", "safe_memory_pressure", "battery_percent", "power_saver", "thermal_before", "thermal_after"],
+      "properties": {
+        "oom": { "type": "boolean" },
+        "crash": { "type": "boolean" },
+        "anr": { "type": "boolean" },
+        "safe_memory_pressure": { "type": "boolean" },
+        "battery_percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "power_saver": { "type": "boolean" },
+        "thermal_before": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "thermal_after": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "peak_rss_delta_mib": { "type": ["number", "null"], "minimum": 0 }
+      }
+    },
+    "vector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "output_sha256"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "output_sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" }
+      }
+    }
+  }
+}

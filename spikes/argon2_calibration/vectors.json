@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "source": "libsodium-1.0.21-crypto_pwhash-argon2id13",
+  "memory_kib": 65536,
+  "operations": 3,
+  "parallelism": 1,
+  "salt_hex": "0102030405060708090a0b0c0d0e0f10",
+  "vectors": [
+    {"id":"ascii","password_utf8_hex":"6c6f63616c686f6c642d7374616765322d73796e7468657469632d70617373776f7264","output_sha256":"39bf18e5fdc7044a024f188e65b6ab5b8f65a607748ee5dd0ae57e5521a8ee54"},
+    {"id":"cyrillic","password_utf8_hex":"d09fd0b0d180d0bed0bbd18c","output_sha256":"7f562246443ab55f21f3fa0aa68a6ce1b9593ea4ddf2aaa8eaf8ce0020afa2da"},
+    {"id":"emoji","password_utf8_hex":"f09f94902070617373776f7264","output_sha256":"387ddd614859bacb69ea6daf05e8b8fb18418fa5d5e24c6ab7b5f55467e48526"},
+    {"id":"nfc","password_utf8_hex":"c3a9","output_sha256":"d1b586a8de64f7e17a2ce6d65549c4e79f117c2035ed6dedd508cbaa2134e0cb"},
+    {"id":"nfd","password_utf8_hex":"65cc81","output_sha256":"ad6dd9d760c3f4a4fa9a33e67d13e800a4536ac977f2bb02ede98cd9d1792162"}
+  ]
+}

@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MPL-2.0
+*.iml
+.gradle
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+.cxx

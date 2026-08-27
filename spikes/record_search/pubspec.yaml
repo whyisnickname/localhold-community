@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MPL-2.0
+name: localhold_record_search_spike
+description: Unlock-scoped in-memory search spike for encrypted record blobs.
+version: 0.0.0-spike.1
+publish_to: none
+
+environment:
+  sdk: ^3.13.1
+
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^6.0.0

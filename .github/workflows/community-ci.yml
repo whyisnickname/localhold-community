@@ -1,0 +1,150 @@
+# SPDX-License-Identifier: MPL-2.0
+name: Community Android and iOS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: community-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_REVISION: 6655482ec06e547f90abf8ae7590466f4415978d
+
+jobs:
+  linux-android:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out public mirror
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - name: Verify public tree and manifest
+        run: python3 tool/verify_public_tree.py .
+      - name: Install exact Flutter revision
+        run: |
+          git clone --filter=blob:none https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          git -C "$RUNNER_TEMP/flutter" checkout "$FLUTTER_REVISION"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/flutter/bin/flutter" precache --android
+      - name: Resolve committed package locks
+        run: |
+          for package in \
+            packages/app_foundation \
+            packages/vault_core \
+            packages/vault_native \
+            packages/vault_native/example \
+            packages/vault_storage \
+            apps/mobile_free; do
+            (cd "$package" && flutter pub get --enforce-lockfile)
+          done
+      - name: Verify generated sources and recovery assets
+        run: |
+          (cd packages/vault_storage && dart run build_runner build)
+          git diff --exit-code -- packages/vault_storage/lib/src/database.g.dart
+          (cd packages/vault_native && dart run tool/generate_bindings.dart)
+          git diff --exit-code -- \
+            packages/vault_native/lib/src/key_bridge_messages.g.dart \
+            packages/vault_native/android/src/main/kotlin/dev/localhold/localhold_key_bridge/KeyBridgeMessages.g.kt \
+            packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/KeyBridgeMessages.g.swift
+          test "$(wc -l < packages/vault_native/android/src/main/assets/bip39_english.txt)" -eq 2048
+          test "$(sha256sum packages/vault_native/android/src/main/assets/bip39_english.txt | cut -d' ' -f1)" = \
+            "2f5eed53a4727b4bf8880d8f3f199efc90e58503646d9ff8eff3a2ed3b24dbda"
+          cmp \
+            packages/vault_native/android/src/main/assets/bip39_english.txt \
+            packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/Resources/bip39_english.txt
+      - name: Analyze and test community packages
+        run: |
+          for package in \
+            packages/app_foundation \
+            packages/vault_core \
+            packages/vault_native \
+            packages/vault_storage \
+            apps/mobile_free; do
+            (cd "$package" && flutter analyze && flutter test)
+          done
+      - name: Build Android Free client and native plugin
+        run: |
+          (cd packages/vault_native/example && flutter build apk --debug \
+            --target-platform android-arm64,android-x64)
+          packages/vault_native/example/android/gradlew \
+            -p packages/vault_native/example/android \
+            :localhold_vault_native:testDebugUnitTest --stacktrace
+          (cd apps/mobile_free && flutter build apk --release \
+            --target-platform android-arm64,android-x64)
+          if grep -a -F "LOCALHOLD_STAGE4_DIAGNOSTIC_ONLY" \
+            apps/mobile_free/build/app/outputs/flutter-apk/app-release.apk; then
+            echo "Diagnostic entrypoint leaked into public release build" >&2
+            exit 1
+          fi
+
+  macos-ios:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - name: Check out public mirror
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+      - name: Verify public tree and manifest
+        run: python3 tool/verify_public_tree.py .
+      - name: Run portable Swift recovery vectors
+        run: |
+          cp packages/vault_native/tool/recovery_mnemonic_vectors.swift "$RUNNER_TEMP/main.swift"
+          swiftc \
+            packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/RecoveryMnemonicCodec.swift \
+            "$RUNNER_TEMP/main.swift" \
+            -o "$RUNNER_TEMP/recovery-vectors"
+          "$RUNNER_TEMP/recovery-vectors" \
+            packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/Resources/bip39_english.txt
+      - name: Verify CocoaPods module identity
+        working-directory: packages/vault_native
+        run: |
+          plugin_name="$(sed -n 's/^name: //p' pubspec.yaml)"
+          test -n "$plugin_name"
+          test -f "ios/$plugin_name.podspec"
+          grep -F "s.name             = '$plugin_name'" "ios/$plugin_name.podspec"
+          ruby -c "ios/$plugin_name.podspec"
+      - name: Restore verified Apple libsodium
+        id: restore-libsodium
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/libsodium-apple-verified
+          key: community-libsodium-1.0.21-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('spikes/argon2_calibration/tool/build_verified_apple_xcframework.sh') }}
+      - name: Install signature verifier
+        if: steps.restore-libsodium.outputs.cache-hit != 'true'
+        run: brew install minisign
+      - name: Build pinned signature-verified Apple libsodium
+        if: steps.restore-libsodium.outputs.cache-hit != 'true'
+        run: |
+          sh spikes/argon2_calibration/tool/build_verified_apple_xcframework.sh \
+            "$RUNNER_TEMP/libsodium-apple-verified"
+      - name: Verify and cache Apple libsodium
+        run: |
+          test -s "$RUNNER_TEMP/libsodium-apple-verified/SHA256SUMS"
+          (cd "$RUNNER_TEMP/libsodium-apple-verified" && shasum -a 256 --check SHA256SUMS)
+      - name: Save verified Apple libsodium
+        if: steps.restore-libsodium.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ${{ runner.temp }}/libsodium-apple-verified
+          key: ${{ steps.restore-libsodium.outputs.cache-primary-key }}
+      - name: Install verified framework
+        run: |
+          mkdir -p packages/vault_native/ios/Frameworks
+          cp -R "$RUNNER_TEMP/libsodium-apple-verified/Clibsodium.xcframework" \
+            packages/vault_native/ios/Frameworks/
+      - name: Install exact Flutter revision
+        run: |
+          git clone --filter=blob:none https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          git -C "$RUNNER_TEMP/flutter" checkout "$FLUTTER_REVISION"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/flutter/bin/flutter" precache --ios
+      - name: Compile unsigned Free client and native harness
+        run: |
+          (cd apps/mobile_free && flutter pub get --enforce-lockfile && \
+            flutter build ios --release --no-codesign)
+          (cd packages/vault_native/example && flutter pub get --enforce-lockfile && \
+            flutter build ios --debug --no-codesign)

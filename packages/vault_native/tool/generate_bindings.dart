@@ -37,6 +37,7 @@ Future<void> main() async {
 
   _redactKotlinEmergencyErrors(File(_kotlinOutput));
   _redactSwiftEmergencyErrors(File(_swiftOutput));
+  _addSwiftAsyncReplySendability(File(_swiftOutput));
   _redactSensitiveMessageStrings(
     dart: File(_dartOutput),
     kotlin: File(_kotlinOutput),
@@ -52,6 +53,25 @@ Future<void> main() async {
   if (formatting.exitCode != 0) {
     exitCode = formatting.exitCode;
   }
+}
+
+void _addSwiftAsyncReplySendability(File file) {
+  var source = file.readAsStringSync();
+  const marker = '''
+
+// Pigeon 28 does not mark async reply value types Sendable. Swift 6 requires
+// this explicit reviewed boundary when results return to the main-actor reply.
+extension VaultSessionReply: @unchecked Sendable {}
+extension StatusReply: @unchecked Sendable {}
+''';
+  if (!source.contains('struct VaultSessionReply:') ||
+      !source.contains('struct StatusReply:')) {
+    throw StateError(
+      'Pinned Pigeon Swift async reply types changed; review required.',
+    );
+  }
+  source += marker;
+  file.writeAsStringSync(source);
 }
 
 void _redactSensitiveMessageStrings({

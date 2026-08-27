@@ -26,44 +26,50 @@ public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeH
       object: nil,
       queue: .main
     ) { [weak self] _ in
-      if UIScreen.main.isCaptured {
-        self?.recoveryAlert?.dismiss(animated: false)
+      MainActor.assumeIsolated {
+        if UIScreen.main.isCaptured {
+          self?.recoveryAlert?.dismiss(animated: false)
+        }
+        self?.updatePrivacyCover()
       }
-      self?.updatePrivacyCover()
     })
     observerTokens.append(NotificationCenter.default.addObserver(
       forName: UIApplication.willResignActiveNotification,
       object: nil,
       queue: .main
     ) { [weak self] _ in
-      guard let self else { return }
-      self.lifecycleCoverRequired = true
-      self.backgroundedAtUptime = ProcessInfo.processInfo.systemUptime
-      self.backgroundLockWorkItem?.cancel()
-      let work = DispatchWorkItem { [weak self] in
-        _ = self?.service.closeAll()
+      MainActor.assumeIsolated {
+        guard let self else { return }
+        self.lifecycleCoverRequired = true
+        self.backgroundedAtUptime = ProcessInfo.processInfo.systemUptime
+        self.backgroundLockWorkItem?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+          _ = self?.service.closeAll()
+        }
+        self.backgroundLockWorkItem = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 30, execute: work)
+        self.updatePrivacyCover()
       }
-      self.backgroundLockWorkItem = work
-      DispatchQueue.main.asyncAfter(deadline: .now() + 30, execute: work)
-      self.updatePrivacyCover()
     })
     observerTokens.append(NotificationCenter.default.addObserver(
       forName: UIApplication.didBecomeActiveNotification,
       object: nil,
       queue: .main
     ) { [weak self] _ in
-      guard let self else { return }
-      if let backgroundedAt = self.backgroundedAtUptime {
-        let elapsed = ProcessInfo.processInfo.systemUptime - backgroundedAt
-        if elapsed < 0 || elapsed >= 30 {
-          _ = self.service.closeAll()
+      MainActor.assumeIsolated {
+        guard let self else { return }
+        if let backgroundedAt = self.backgroundedAtUptime {
+          let elapsed = ProcessInfo.processInfo.systemUptime - backgroundedAt
+          if elapsed < 0 || elapsed >= 30 {
+            _ = self.service.closeAll()
+          }
         }
+        self.backgroundedAtUptime = nil
+        self.backgroundLockWorkItem?.cancel()
+        self.backgroundLockWorkItem = nil
+        self.lifecycleCoverRequired = false
+        self.updatePrivacyCover()
       }
-      self.backgroundedAtUptime = nil
-      self.backgroundLockWorkItem?.cancel()
-      self.backgroundLockWorkItem = nil
-      self.lifecycleCoverRequired = false
-      self.updatePrivacyCover()
     })
     observerTokens.append(NotificationCenter.default.addObserver(
       forName: UIApplication.protectedDataWillBecomeUnavailableNotification,
@@ -117,23 +123,25 @@ public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeH
   }
 
   func presentRecoveryKey(ceremonyHandle: String) throws -> StatusReply {
-    guard !UIScreen.main.isCaptured else { return StatusReply(error: .sessionLocked) }
-    guard let words = service.recoveryWordsForPresentation(ceremonyHandle) else {
-      return StatusReply(error: .invalidRequest)
+    MainActor.assumeIsolated {
+      guard !UIScreen.main.isCaptured else { return StatusReply(error: .sessionLocked) }
+      guard let words = service.recoveryWordsForPresentation(ceremonyHandle) else {
+        return StatusReply(error: .invalidRequest)
+      }
+      guard let presenter = Self.topViewController() else {
+        return StatusReply(error: .platformUnavailable)
+      }
+      let text = words.enumerated().map { "\($0.offset + 1). \($0.element)" }.joined(separator: "\n")
+      let alert = UIAlertController(
+        title: "Localhold recovery key",
+        message: text,
+        preferredStyle: .alert
+      )
+      alert.addAction(UIAlertAction(title: "Done", style: .default))
+      recoveryAlert = alert
+      presenter.present(alert, animated: true)
+      return StatusReply()
     }
-    guard let presenter = Self.topViewController() else {
-      return StatusReply(error: .platformUnavailable)
-    }
-    let text = words.enumerated().map { "\($0.offset + 1). \($0.element)" }.joined(separator: "\n")
-    let alert = UIAlertController(
-      title: "Localhold recovery key",
-      message: text,
-      preferredStyle: .alert
-    )
-    alert.addAction(UIAlertAction(title: "Done", style: .default))
-    recoveryAlert = alert
-    presenter.present(alert, animated: true)
-    return StatusReply()
   }
 
   func confirmRecoveryKey(request: ConfirmRecoveryKeyRequest) throws -> PayloadReply {
@@ -145,55 +153,67 @@ public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeH
   }
 
   func cancelRecoveryKey(ceremonyHandle: String) throws -> StatusReply {
-    recoveryAlert?.dismiss(animated: false)
-    return service.cancelRecovery(ceremonyHandle)
+    MainActor.assumeIsolated {
+      recoveryAlert?.dismiss(animated: false)
+      return service.cancelRecovery(ceremonyHandle)
+    }
   }
 
   func setVaultPrivacyActive(active: Bool) throws -> StatusReply {
-    privacyEnabled = active
-    updatePrivacyCover()
-    return StatusReply()
+    MainActor.assumeIsolated {
+      privacyEnabled = active
+      updatePrivacyCover()
+      return StatusReply()
+    }
   }
 
   func copySensitiveClipboard(request: SensitiveClipboardRequest) throws -> StatusReply {
-    var bytes = request.utf8Value.data
-    defer { bytes.resetBytes(in: 0..<bytes.count) }
-    guard !bytes.isEmpty,
-          bytes.count <= 2 * 1024 * 1024,
-          [15, 30, 60, 120].contains(request.expirySeconds),
-          let value = String(data: bytes, encoding: .utf8)
-    else { return StatusReply(error: .invalidRequest) }
-    let pasteboard = UIPasteboard.general
-    pasteboard.setItems(
-      [[UTType.utf8PlainText.identifier: value]],
-      options: [
-        .localOnly: true,
-        .expirationDate: Date(timeIntervalSinceNow: TimeInterval(request.expirySeconds)),
-      ]
-    )
-    clipboardDigest = Data(SHA256.hash(data: Data(value.utf8)))
-    clipboardChangeCount = pasteboard.changeCount
-    let generation = pasteboard.changeCount
-    DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Int(request.expirySeconds))) {
-      [weak self] in
-      if self?.clipboardChangeCount == generation { _ = try? self?.clearSensitiveClipboard() }
+    MainActor.assumeIsolated {
+      var bytes = request.utf8Value.data
+      defer { bytes.resetBytes(in: 0..<bytes.count) }
+      guard !bytes.isEmpty,
+            bytes.count <= 2 * 1024 * 1024,
+            [15, 30, 60, 120].contains(request.expirySeconds),
+            let value = String(data: bytes, encoding: .utf8)
+      else { return StatusReply(error: .invalidRequest) }
+      let pasteboard = UIPasteboard.general
+      pasteboard.setItems(
+        [[UTType.utf8PlainText.identifier: value]],
+        options: [
+          .localOnly: true,
+          .expirationDate: Date(timeIntervalSinceNow: TimeInterval(request.expirySeconds)),
+        ]
+      )
+      clipboardDigest = Data(SHA256.hash(data: Data(value.utf8)))
+      clipboardChangeCount = pasteboard.changeCount
+      let generation = pasteboard.changeCount
+      DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(Int(request.expirySeconds))) {
+        [weak self] in
+        MainActor.assumeIsolated {
+          if self?.clipboardChangeCount == generation {
+            _ = try? self?.clearSensitiveClipboard()
+          }
+        }
+      }
+      return StatusReply()
     }
-    return StatusReply()
   }
 
   func clearSensitiveClipboard() throws -> StatusReply {
-    let pasteboard = UIPasteboard.general
-    guard let expected = clipboardDigest,
-          let expectedChange = clipboardChangeCount
-    else { return StatusReply() }
-    if pasteboard.changeCount == expectedChange,
-       let current = pasteboard.string,
-       Data(SHA256.hash(data: Data(current.utf8))) == expected {
-      pasteboard.items = []
+    MainActor.assumeIsolated {
+      let pasteboard = UIPasteboard.general
+      guard let expected = clipboardDigest,
+            let expectedChange = clipboardChangeCount
+      else { return StatusReply() }
+      if pasteboard.changeCount == expectedChange,
+         let current = pasteboard.string,
+         Data(SHA256.hash(data: Data(current.utf8))) == expected {
+        pasteboard.items = []
+      }
+      clipboardDigest = nil
+      clipboardChangeCount = nil
+      return StatusReply()
     }
-    clipboardDigest = nil
-    clipboardChangeCount = nil
-    return StatusReply()
   }
 
   func enableBiometric(sessionHandle: String) async throws -> StatusReply {
@@ -237,6 +257,7 @@ public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeH
     service.closeAll()
   }
 
+  @MainActor
   private static func topViewController() -> UIViewController? {
     let root = UIApplication.shared.connectedScenes
       .compactMap { $0 as? UIWindowScene }
@@ -248,6 +269,7 @@ public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeH
     return current
   }
 
+  @MainActor
   private func updatePrivacyCover() {
     let shouldCover = privacyEnabled && (lifecycleCoverRequired || UIScreen.main.isCaptured)
     guard shouldCover else {

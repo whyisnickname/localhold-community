@@ -111,6 +111,37 @@ void main() {
     }
   });
 
+  test('Swift 6 UI and async reply boundaries remain explicit', () {
+    final generated = File(
+      'ios/localhold_key_bridge/Sources/localhold_key_bridge/KeyBridgeMessages.g.swift',
+    ).readAsStringSync();
+    final plugin = File(
+      'ios/localhold_key_bridge/Sources/localhold_key_bridge/LocalholdKeyBridgePlugin.swift',
+    ).readAsStringSync();
+    final coordinator = File(
+      'ios/localhold_key_bridge/Sources/localhold_key_bridge/IOSBiometricCoordinator.swift',
+    ).readAsStringSync();
+
+    expect(
+      generated,
+      contains('extension VaultSessionReply: @unchecked Sendable {}'),
+    );
+    expect(
+      generated,
+      contains('extension StatusReply: @unchecked Sendable {}'),
+    );
+    expect(plugin, contains('MainActor.assumeIsolated'));
+    expect(
+      plugin,
+      contains('@MainActor\n  private static func topViewController'),
+    );
+    expect(plugin, contains('@MainActor\n  private func updatePrivacyCover'));
+    expect(
+      coordinator,
+      isNot(contains('BiometricStatusReply(configured: false, error:')),
+    );
+  });
+
   test('generated message descriptions cannot disclose payload bytes', () {
     const generated = <String>[
       'lib/src/key_bridge_messages.g.dart',

@@ -110,7 +110,11 @@ final class IOSBiometricCoordinator {
 
   func status(_ vaultId: String) -> BiometricStatusReply {
     guard vaultId.range(of: "^[A-Za-z0-9_-]{22}$", options: .regularExpression) != nil else {
-      return BiometricStatusReply(configured: false, error: .invalidRequest)
+      return BiometricStatusReply(
+        configured: false,
+        invalidated: false,
+        error: .invalidRequest
+      )
     }
     let context = LAContext()
     var evaluationError: NSError?
@@ -125,7 +129,11 @@ final class IOSBiometricCoordinator {
         invalidated: configured && !available
       )
     } catch {
-      return BiometricStatusReply(configured: false, error: .platformUnavailable)
+      return BiometricStatusReply(
+        configured: false,
+        invalidated: false,
+        error: .platformUnavailable
+      )
     }
   }
 

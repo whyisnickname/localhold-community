@@ -1,6 +1,6 @@
 {
   "files": {
-    ".github/workflows/community-ci.yml": "c97adfdcf3d655998008d347a411cba1e3a8af5892cc5c87ab5883f28a4a0adf",
+    ".github/workflows/community-ci.yml": "591fa5bb351030f69c4c84a65bbc7756562768918dbddfc8c1024a5d2fe87d55",
     "CONTRIBUTING.md": "bf9befae369c9e58e43aeee3cc0184bd806228aead6b13e95776bb80dc706e29",
     "LICENSE": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
     "README.md": "580290dcec6a028f7d02da51ce00c847063fec19f856b1a264fc12adbca517bd",
@@ -317,11 +317,11 @@
     "packages/vault_native/example/test/widget_test.dart": "e57c828a0b0c30cc2f043e008e299c30a12e489de9e85881446a893372237b7e",
     "packages/vault_native/ios/.gitignore": "9a1f59398ff7ce6ea74fab2f50482c2b02eca14a5e361bede897a0a095b8c69b",
     "packages/vault_native/ios/localhold_key_bridge/Package.swift": "77e719840d520f32c389fbb0439f7a13717499bd5c532bf5b40d51aed668117c",
-    "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/IOSBiometricCoordinator.swift": "c9dbe155087c1ed827211d52906ca4fbf5c7173ce2b078bf6c090833e6acceca",
+    "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/IOSBiometricCoordinator.swift": "763bac9a6b92276cb72deba9ba4e6c2d73c12ed1c27e097eddf199ded659492c",
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/IOSBiometricWrapper.swift": "9327506b05a39a3454892508d2dfec5756dbf2e6bcf71cd094ff9d59fdb56e4d",
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/IOSVaultCryptoService.swift": "ad7cc0b14595d13517af38669f23cbd8cbf21abfd3fec2991469113252b70c3d",
-    "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/KeyBridgeMessages.g.swift": "d32f4ec941cecbc51fd9958533ea9e130b25c66f0e04b88ce69b0f2e4ec088bc",
-    "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/LocalholdKeyBridgePlugin.swift": "7819b09a37c371b24125b36202390414764fba88dd3c1b5fc482564cea64e81d",
+    "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/KeyBridgeMessages.g.swift": "46854dc0b8d8f41dbb369316b12421de8ef3c90c605d336ece3a07981c2221cc",
+    "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/LocalholdKeyBridgePlugin.swift": "a9dbbb21a02b420249c6fba408e2bc74978368f21a8d7628aafd394f0dcb170a",
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/PrivacyInfo.xcprivacy": "a425125009cd112943593d34b5e193fa70bb5bb3627543dc292817043c7f2262",
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/RecoveryMnemonicCodec.swift": "a5f0a8a4e14c1bee80e604195f0fe560ea57d7272719c922facbbb9b9bed3339",
     "packages/vault_native/ios/localhold_key_bridge/Sources/localhold_key_bridge/Resources/bip39_english.txt": "2f5eed53a4727b4bf8880d8f3f199efc90e58503646d9ff8eff3a2ed3b24dbda",
@@ -337,8 +337,8 @@
     "packages/vault_native/pubspec.lock": "ee85d7ab1142edf6c380ed037e1a650758e0364abfa37fb6eec231315a009541",
     "packages/vault_native/pubspec.yaml": "ce9917f46e4380c3efb8293dd8eb8313d255a974cebfffa5bef759864178326c",
     "packages/vault_native/test/key_bridge_facade_test.dart": "01bdf06cc9f19a19eee19339b4f0b27f8477cd738769e10d8580c7ed0c76d787",
-    "packages/vault_native/test/source_boundary_test.dart": "493c3c2fe57b1db1fc40705f41d90e92ea383d71b3223782f6aeaa9237e99dad",
-    "packages/vault_native/tool/generate_bindings.dart": "abfeb868d4092e45587a6d5ecadd9bc89b5504666f0d0807b4af38a4178798f9",
+    "packages/vault_native/test/source_boundary_test.dart": "6df95bae0bd5ab361beb299250885840f5138cdcbdf54a43542baf3c9fe27d39",
+    "packages/vault_native/tool/generate_bindings.dart": "27e7bd789e621208fd83c5ac5e84db8e540faaa1b0b01623cd0d679f2a639539",
     "packages/vault_native/tool/recovery_mnemonic_vectors.swift": "198f35cbc4325a5a6ac7df10650e20214f36c05775c5dcdff15bac1934b3f625",
     "packages/vault_storage/LICENSE": "f50134de80f505afb9224792e283e176d683a14a8d6cafd6263a49f6d081d866",
     "packages/vault_storage/README.md": "883f16394140e3f114129e8308c9b6f0607fcd3f552e4b9c64651ba4a2da29da",
@@ -520,5 +520,5 @@
     "tool/verify_public_tree.py": "f3d4e59cb313b029d8743e68d0318e28293a4eb8e1cb1f89d3401907d082ca25"
   },
   "schema_version": 1,
-  "source_revision": "28bae91200f0fb253694e4ebdc01565cca2b4332"
+  "source_revision": "21784c93c6882c008240182526dfbfa6433425ce"
 }

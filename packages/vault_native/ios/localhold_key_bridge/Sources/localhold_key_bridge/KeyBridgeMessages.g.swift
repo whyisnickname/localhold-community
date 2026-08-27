@@ -1199,3 +1199,8 @@ class KeyBridgeHostApiSetup {
     }
   }
 }
+
+// Pigeon 28 does not mark async reply value types Sendable. Swift 6 requires
+// this explicit reviewed boundary when results return to the main-actor reply.
+extension VaultSessionReply: @unchecked Sendable {}
+extension StatusReply: @unchecked Sendable {}

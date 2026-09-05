@@ -28,8 +28,8 @@ final class IOSPlatformFeaturesTests: XCTestCase {
     let features = IOSPlatformFeatures()
     XCTAssertFalse(features.acceptLauncherShortcut("localhold.reveal"))
     XCTAssertTrue(features.acceptLauncherShortcut("localhold.search"))
-    XCTAssertEqual(features.consumeLauncherAction().action, .search)
-    XCTAssertEqual(features.consumeLauncherAction().action, .none)
+    XCTAssertEqual(features.consumeLauncherAction().actionCode, 2)
+    XCTAssertEqual(features.consumeLauncherAction().actionCode, 0)
   }
 
   func testInboundShareRoundTripUsesBoundedChunksAndCleanup() {

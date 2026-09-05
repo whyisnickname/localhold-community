@@ -260,6 +260,9 @@ void main() {
       );
       expect(stager, contains('queueMaximum = 8'));
       expect(stager, contains('queueByteMaximum = 512 * 1024 * 1024'));
+      expect(stager, contains('IOSInboundShareFileLock.withExclusive'));
+      expect(stager, contains('Darwin.flock'));
+      expect(stager, contains('LOCK_EX | LOCK_NB'));
       expect(stager, isNot(contains('UIApplication')));
       expect(stager, isNot(contains('URLSession')));
       expect(extension, contains('loadFileRepresentation'));

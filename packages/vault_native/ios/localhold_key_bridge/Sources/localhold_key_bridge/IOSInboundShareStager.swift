@@ -2,6 +2,7 @@
 
 import Foundation
 import Security
+import Darwin
 
 public enum IOSInboundShareInputKind: Int {
   case text = 0
@@ -49,6 +50,29 @@ public final class IOSInboundShareStager {
     guard let directory = IOSInboundShareLocation.directory(), let id = randomId() else {
       return false
     }
+    do {
+      try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    } catch {
+      return false
+    }
+    return IOSInboundShareFileLock.withExclusive(in: directory) {
+      stageLocked(
+        kind: kind,
+        declaredLength: declaredLength,
+        directory: directory,
+        id: id,
+        writer: writer
+      )
+    } ?? false
+  }
+
+  private static func stageLocked(
+    kind: IOSInboundShareInputKind,
+    declaredLength: Int,
+    directory: URL,
+    id: String,
+    writer: (FileHandle) throws -> Void
+  ) -> Bool {
     let pending = ((try? FileManager.default.contentsOfDirectory(
       at: directory,
       includingPropertiesForKeys: [.fileSizeKey]
@@ -62,7 +86,6 @@ public final class IOSInboundShareStager {
     let payload = directory.appendingPathComponent("\(id).payload")
     let metadata = directory.appendingPathComponent("\(id).json")
     do {
-      try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
       guard FileManager.default.createFile(
         atPath: payload.path,
         contents: nil,
@@ -111,6 +134,24 @@ public final class IOSInboundShareStager {
       .replacingOccurrences(of: "+", with: "-")
       .replacingOccurrences(of: "/", with: "_")
       .replacingOccurrences(of: "=", with: "")
+  }
+}
+
+enum IOSInboundShareFileLock {
+  private static let filename = ".queue.lock"
+
+  static func withExclusive<T>(in directory: URL, _ body: () -> T) -> T? {
+    let lockURL = directory.appendingPathComponent(filename)
+    let descriptor = Darwin.open(
+      lockURL.path,
+      O_CREAT | O_RDWR,
+      S_IRUSR | S_IWUSR
+    )
+    guard descriptor >= 0 else { return nil }
+    defer { Darwin.close(descriptor) }
+    guard Darwin.flock(descriptor, LOCK_EX | LOCK_NB) == 0 else { return nil }
+    defer { _ = Darwin.flock(descriptor, LOCK_UN) }
+    return body()
   }
 }
 

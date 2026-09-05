@@ -240,55 +240,63 @@ final class IOSInboundShareStore: @unchecked Sendable {
   }
 
   func list() -> InboundShareListReply {
-    lock.lock()
-    defer { lock.unlock() }
-    _ = purgeLocked(Int64(Date().timeIntervalSince1970 * 1000))
-    let urls = (try? FileManager.default.contentsOfDirectory(
-      at: directory,
-      includingPropertiesForKeys: nil
-    )) ?? []
-    return InboundShareListReply(items: urls.filter { $0.pathExtension == "json" }.compactMap(decode))
+    withFileLock(InboundShareListReply(items: [], error: .internalFailure)) {
+      _ = purgeLocked(Int64(Date().timeIntervalSince1970 * 1000))
+      let urls = (try? FileManager.default.contentsOfDirectory(
+        at: directory,
+        includingPropertiesForKeys: nil
+      )) ?? []
+      return InboundShareListReply(
+        items: urls.filter { $0.pathExtension == "json" }.compactMap(decode)
+      )
+    }
   }
 
   func read(_ request: InboundShareChunkRequest) -> InboundShareChunkReply {
-    lock.lock()
-    defer { lock.unlock() }
-    guard Self.validId(request.id), request.offset >= 0,
-          (1...65536).contains(request.maximumBytes)
-    else { return failure(.invalidRequest) }
-    let url = directory.appendingPathComponent("\(request.id).payload")
-    guard let handle = try? FileHandle(forReadingFrom: url),
-          let size = try? handle.seekToEnd(), UInt64(request.offset) <= size
-    else { return failure(.notFound) }
-    do {
-      try handle.seek(toOffset: UInt64(request.offset))
-      let remaining = size - UInt64(request.offset)
-      let count = min(Int(request.maximumBytes), Int(remaining))
-      let data = try handle.read(upToCount: count) ?? Data()
-      try handle.close()
-      return InboundShareChunkReply(
-        bytes: FlutterStandardTypedData(bytes: data),
-        done: UInt64(request.offset) + UInt64(data.count) == size
-      )
-    } catch {
-      try? handle.close()
-      return failure(.internalFailure)
+    withFileLock(failure(.internalFailure)) {
+      guard Self.validId(request.id), request.offset >= 0,
+            (1...65536).contains(request.maximumBytes)
+      else { return failure(.invalidRequest) }
+      let url = directory.appendingPathComponent("\(request.id).payload")
+      guard let handle = try? FileHandle(forReadingFrom: url),
+            let size = try? handle.seekToEnd(), UInt64(request.offset) <= size
+      else { return failure(.notFound) }
+      do {
+        try handle.seek(toOffset: UInt64(request.offset))
+        let remaining = size - UInt64(request.offset)
+        let count = min(Int(request.maximumBytes), Int(remaining))
+        let data = try handle.read(upToCount: count) ?? Data()
+        try handle.close()
+        return InboundShareChunkReply(
+          bytes: FlutterStandardTypedData(bytes: data),
+          done: UInt64(request.offset) + UInt64(data.count) == size
+        )
+      } catch {
+        try? handle.close()
+        return failure(.internalFailure)
+      }
     }
   }
 
   func delete(_ id: String) -> FeatureStatusReply {
-    lock.lock()
-    defer { lock.unlock() }
-    guard Self.validId(id) else { return FeatureStatusReply(error: .invalidRequest) }
-    try? FileManager.default.removeItem(at: directory.appendingPathComponent("\(id).payload"))
-    try? FileManager.default.removeItem(at: directory.appendingPathComponent("\(id).json"))
-    return FeatureStatusReply()
+    withFileLock(FeatureStatusReply(error: .internalFailure)) {
+      guard Self.validId(id) else { return FeatureStatusReply(error: .invalidRequest) }
+      try? FileManager.default.removeItem(at: directory.appendingPathComponent("\(id).payload"))
+      try? FileManager.default.removeItem(at: directory.appendingPathComponent("\(id).json"))
+      return FeatureStatusReply()
+    }
   }
 
   func purge(_ now: Int64) -> FeatureStatusReply {
+    withFileLock(FeatureStatusReply(error: .internalFailure)) {
+      purgeLocked(now)
+    }
+  }
+
+  private func withFileLock<T>(_ failure: T, _ body: () -> T) -> T {
     lock.lock()
     defer { lock.unlock() }
-    return purgeLocked(now)
+    return IOSInboundShareFileLock.withExclusive(in: directory, body) ?? failure
   }
 
   private func purgeLocked(_ now: Int64) -> FeatureStatusReply {

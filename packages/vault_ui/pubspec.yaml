@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: MPL-2.0
+name: localhold_vault_ui
+description: Guest onboarding, unlock, vault picker and Home UI for Localhold.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.1
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  localhold_app_foundation:
+    path: ../app_foundation
+  localhold_vault_access:
+    path: ../vault_access
+  localhold_vault_core:
+    path: ../vault_core
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

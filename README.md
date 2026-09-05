@@ -9,6 +9,9 @@ Current foundation:
 
 - `apps/mobile_free/` — standalone Android/iOS Flutter client;
 - `packages/app_foundation/` — shared source identity and approved themes;
+- `packages/product_shell/` — safe adaptive navigation primitives;
+- `packages/vault_access/` — local-only application access port;
+- `packages/vault_ui/` — guest onboarding, unlock and Home UI;
 - `spikes/` — Stage 2 cryptography/platform evidence retained as MPL source.
 
 Premium, account, entitlement, payment, backend, infrastructure, secrets and

@@ -183,6 +183,36 @@ enum KeyBridgeErrorCode: Int, CaseIterable {
   case internalFailure = 11
 }
 
+enum PlatformFeatureErrorCode: Int, CaseIterable {
+  case invalidRequest = 0
+  case permissionDenied = 1
+  case permissionRestricted = 2
+  case notFound = 3
+  case platformUnavailable = 4
+  case internalFailure = 5
+}
+
+enum NotificationPermissionCode: Int, CaseIterable {
+  case notDetermined = 0
+  case denied = 1
+  case restricted = 2
+  case authorized = 3
+}
+
+enum WallClockResolutionCode: Int, CaseIterable {
+  case unique = 0
+  case earlier = 1
+  case later = 2
+  case gapAdjusted = 3
+}
+
+enum ShareKindCode: Int, CaseIterable {
+  case text = 0
+  case url = 1
+  case file = 2
+  case image = 3
+}
+
 /// Generated class from Pigeon that represents data sent in messages.
 struct CreateVaultKeyRequest: Hashable, CustomStringConvertible {
   var vaultId: String
@@ -738,6 +768,466 @@ struct BiometricStatusReply: Hashable, CustomStringConvertible {
   }
 }
 
+/// Generated class from Pigeon that represents data sent in messages.
+struct FeatureStatusReply: Hashable, CustomStringConvertible {
+  var error: PlatformFeatureErrorCode? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> FeatureStatusReply? {
+    let error: PlatformFeatureErrorCode? = nilOrValue(pigeonVar_list[0])
+
+    return FeatureStatusReply(
+      error: error
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      error
+    ]
+  }
+  static func == (lhs: FeatureStatusReply, rhs: FeatureStatusReply) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return KeyBridgeMessagesPigeonInternal.deepEquals(lhs.error, rhs.error)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("FeatureStatusReply")
+    KeyBridgeMessagesPigeonInternal.deepHash(value: error, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct NotificationPermissionReply: Hashable, CustomStringConvertible {
+  var state: NotificationPermissionCode
+  var error: PlatformFeatureErrorCode? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> NotificationPermissionReply? {
+    let state = pigeonVar_list[0] as! NotificationPermissionCode
+    let error: PlatformFeatureErrorCode? = nilOrValue(pigeonVar_list[1])
+
+    return NotificationPermissionReply(
+      state: state,
+      error: error
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      state,
+      error,
+    ]
+  }
+  static func == (lhs: NotificationPermissionReply, rhs: NotificationPermissionReply) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return KeyBridgeMessagesPigeonInternal.deepEquals(lhs.state, rhs.state) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.error, rhs.error)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("NotificationPermissionReply")
+    KeyBridgeMessagesPigeonInternal.deepHash(value: state, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: error, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct LauncherActionReply: Hashable, CustomStringConvertible {
+  var actionCode: Int64
+  var error: PlatformFeatureErrorCode? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> LauncherActionReply? {
+    let actionCode = pigeonVar_list[0] as! Int64
+    let error: PlatformFeatureErrorCode? = nilOrValue(pigeonVar_list[1])
+
+    return LauncherActionReply(
+      actionCode: actionCode,
+      error: error
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      actionCode,
+      error,
+    ]
+  }
+  static func == (lhs: LauncherActionReply, rhs: LauncherActionReply) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return KeyBridgeMessagesPigeonInternal.deepEquals(lhs.actionCode, rhs.actionCode) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.error, rhs.error)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("LauncherActionReply")
+    KeyBridgeMessagesPigeonInternal.deepHash(value: actionCode, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: error, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct WallClockRequest: Hashable, CustomStringConvertible {
+  var year: Int64
+  var month: Int64
+  var day: Int64
+  var hour: Int64
+  var minute: Int64
+  var timeZoneId: String
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> WallClockRequest? {
+    let year = pigeonVar_list[0] as! Int64
+    let month = pigeonVar_list[1] as! Int64
+    let day = pigeonVar_list[2] as! Int64
+    let hour = pigeonVar_list[3] as! Int64
+    let minute = pigeonVar_list[4] as! Int64
+    let timeZoneId = pigeonVar_list[5] as! String
+
+    return WallClockRequest(
+      year: year,
+      month: month,
+      day: day,
+      hour: hour,
+      minute: minute,
+      timeZoneId: timeZoneId
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      timeZoneId,
+    ]
+  }
+  static func == (lhs: WallClockRequest, rhs: WallClockRequest) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return KeyBridgeMessagesPigeonInternal.deepEquals(lhs.year, rhs.year) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.month, rhs.month) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.day, rhs.day) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.hour, rhs.hour) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.minute, rhs.minute) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.timeZoneId, rhs.timeZoneId)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("WallClockRequest")
+    KeyBridgeMessagesPigeonInternal.deepHash(value: year, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: month, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: day, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: hour, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: minute, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: timeZoneId, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct WallClockReply: Hashable, CustomStringConvertible {
+  var utcEpochMilliseconds: Int64
+  var resolution: WallClockResolutionCode
+  var error: PlatformFeatureErrorCode? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> WallClockReply? {
+    let utcEpochMilliseconds = pigeonVar_list[0] as! Int64
+    let resolution = pigeonVar_list[1] as! WallClockResolutionCode
+    let error: PlatformFeatureErrorCode? = nilOrValue(pigeonVar_list[2])
+
+    return WallClockReply(
+      utcEpochMilliseconds: utcEpochMilliseconds,
+      resolution: resolution,
+      error: error
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      utcEpochMilliseconds,
+      resolution,
+      error,
+    ]
+  }
+  static func == (lhs: WallClockReply, rhs: WallClockReply) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return KeyBridgeMessagesPigeonInternal.deepEquals(lhs.utcEpochMilliseconds, rhs.utcEpochMilliseconds) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.resolution, rhs.resolution) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.error, rhs.error)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("WallClockReply")
+    KeyBridgeMessagesPigeonInternal.deepHash(value: utcEpochMilliseconds, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: resolution, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: error, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct SafeReminderRequest: Hashable, CustomStringConvertible {
+  var syntheticId: String
+  var utcEpochMilliseconds: Int64
+  var privacyCode: Int64
+  var safeName: String? = nil
+  var safeAmount: String? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> SafeReminderRequest? {
+    let syntheticId = pigeonVar_list[0] as! String
+    let utcEpochMilliseconds = pigeonVar_list[1] as! Int64
+    let privacyCode = pigeonVar_list[2] as! Int64
+    let safeName: String? = nilOrValue(pigeonVar_list[3])
+    let safeAmount: String? = nilOrValue(pigeonVar_list[4])
+
+    return SafeReminderRequest(
+      syntheticId: syntheticId,
+      utcEpochMilliseconds: utcEpochMilliseconds,
+      privacyCode: privacyCode,
+      safeName: safeName,
+      safeAmount: safeAmount
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      syntheticId,
+      utcEpochMilliseconds,
+      privacyCode,
+      safeName,
+      safeAmount,
+    ]
+  }
+  static func == (lhs: SafeReminderRequest, rhs: SafeReminderRequest) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return KeyBridgeMessagesPigeonInternal.deepEquals(lhs.syntheticId, rhs.syntheticId) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.utcEpochMilliseconds, rhs.utcEpochMilliseconds) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.privacyCode, rhs.privacyCode) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.safeName, rhs.safeName) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.safeAmount, rhs.safeAmount)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("SafeReminderRequest")
+    KeyBridgeMessagesPigeonInternal.deepHash(value: syntheticId, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: utcEpochMilliseconds, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: privacyCode, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: safeName, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: safeAmount, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct InboundShareDescriptorReply: Hashable, CustomStringConvertible {
+  var id: String
+  var kind: ShareKindCode
+  var byteLength: Int64
+  var receivedUtcEpochMilliseconds: Int64
+  var expiresUtcEpochMilliseconds: Int64
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> InboundShareDescriptorReply? {
+    let id = pigeonVar_list[0] as! String
+    let kind = pigeonVar_list[1] as! ShareKindCode
+    let byteLength = pigeonVar_list[2] as! Int64
+    let receivedUtcEpochMilliseconds = pigeonVar_list[3] as! Int64
+    let expiresUtcEpochMilliseconds = pigeonVar_list[4] as! Int64
+
+    return InboundShareDescriptorReply(
+      id: id,
+      kind: kind,
+      byteLength: byteLength,
+      receivedUtcEpochMilliseconds: receivedUtcEpochMilliseconds,
+      expiresUtcEpochMilliseconds: expiresUtcEpochMilliseconds
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      id,
+      kind,
+      byteLength,
+      receivedUtcEpochMilliseconds,
+      expiresUtcEpochMilliseconds,
+    ]
+  }
+  static func == (lhs: InboundShareDescriptorReply, rhs: InboundShareDescriptorReply) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return KeyBridgeMessagesPigeonInternal.deepEquals(lhs.id, rhs.id) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.kind, rhs.kind) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.byteLength, rhs.byteLength) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.receivedUtcEpochMilliseconds, rhs.receivedUtcEpochMilliseconds) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.expiresUtcEpochMilliseconds, rhs.expiresUtcEpochMilliseconds)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("InboundShareDescriptorReply")
+    KeyBridgeMessagesPigeonInternal.deepHash(value: id, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: kind, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: byteLength, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: receivedUtcEpochMilliseconds, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: expiresUtcEpochMilliseconds, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct InboundShareListReply: Hashable, CustomStringConvertible {
+  var items: [InboundShareDescriptorReply]
+  var error: PlatformFeatureErrorCode? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> InboundShareListReply? {
+    let items = pigeonVar_list[0] as! [InboundShareDescriptorReply]
+    let error: PlatformFeatureErrorCode? = nilOrValue(pigeonVar_list[1])
+
+    return InboundShareListReply(
+      items: items,
+      error: error
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      items,
+      error,
+    ]
+  }
+  static func == (lhs: InboundShareListReply, rhs: InboundShareListReply) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return KeyBridgeMessagesPigeonInternal.deepEquals(lhs.items, rhs.items) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.error, rhs.error)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("InboundShareListReply")
+    KeyBridgeMessagesPigeonInternal.deepHash(value: items, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: error, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct InboundShareChunkRequest: Hashable, CustomStringConvertible {
+  var id: String
+  var offset: Int64
+  var maximumBytes: Int64
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> InboundShareChunkRequest? {
+    let id = pigeonVar_list[0] as! String
+    let offset = pigeonVar_list[1] as! Int64
+    let maximumBytes = pigeonVar_list[2] as! Int64
+
+    return InboundShareChunkRequest(
+      id: id,
+      offset: offset,
+      maximumBytes: maximumBytes
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      id,
+      offset,
+      maximumBytes,
+    ]
+  }
+  static func == (lhs: InboundShareChunkRequest, rhs: InboundShareChunkRequest) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return KeyBridgeMessagesPigeonInternal.deepEquals(lhs.id, rhs.id) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.offset, rhs.offset) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.maximumBytes, rhs.maximumBytes)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("InboundShareChunkRequest")
+    KeyBridgeMessagesPigeonInternal.deepHash(value: id, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: offset, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: maximumBytes, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct InboundShareChunkReply: Hashable, CustomStringConvertible {
+  var bytes: FlutterStandardTypedData
+  var done: Bool
+  var error: PlatformFeatureErrorCode? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> InboundShareChunkReply? {
+    let bytes = pigeonVar_list[0] as! FlutterStandardTypedData
+    let done = pigeonVar_list[1] as! Bool
+    let error: PlatformFeatureErrorCode? = nilOrValue(pigeonVar_list[2])
+
+    return InboundShareChunkReply(
+      bytes: bytes,
+      done: done,
+      error: error
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      bytes,
+      done,
+      error,
+    ]
+  }
+  static func == (lhs: InboundShareChunkReply, rhs: InboundShareChunkReply) -> Bool {
+    if Swift.type(of: lhs) != Swift.type(of: rhs) {
+      return false
+    }
+    return KeyBridgeMessagesPigeonInternal.deepEquals(lhs.bytes, rhs.bytes) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.done, rhs.done) && KeyBridgeMessagesPigeonInternal.deepEquals(lhs.error, rhs.error)
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine("InboundShareChunkReply")
+    KeyBridgeMessagesPigeonInternal.deepHash(value: bytes, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: done, hasher: &hasher)
+    KeyBridgeMessagesPigeonInternal.deepHash(value: error, hasher: &hasher)
+  }
+
+  public var description: String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
 private class KeyBridgeMessagesPigeonCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
@@ -748,31 +1238,75 @@ private class KeyBridgeMessagesPigeonCodecReader: FlutterStandardReader {
       }
       return nil
     case 130:
-      return CreateVaultKeyRequest.fromList(self.readValue() as! [Any?])
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return PlatformFeatureErrorCode(rawValue: enumResultAsInt)
+      }
+      return nil
     case 131:
-      return OpenVaultSessionRequest.fromList(self.readValue() as! [Any?])
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return NotificationPermissionCode(rawValue: enumResultAsInt)
+      }
+      return nil
     case 132:
-      return RewrapVaultKeyRequest.fromList(self.readValue() as! [Any?])
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return WallClockResolutionCode(rawValue: enumResultAsInt)
+      }
+      return nil
     case 133:
-      return EncryptPayloadRequest.fromList(self.readValue() as! [Any?])
+      let enumResultAsInt: Int? = nilOrValue(self.readValue() as! Int?)
+      if let enumResultAsInt = enumResultAsInt {
+        return ShareKindCode(rawValue: enumResultAsInt)
+      }
+      return nil
     case 134:
-      return DecryptPayloadRequest.fromList(self.readValue() as! [Any?])
+      return CreateVaultKeyRequest.fromList(self.readValue() as! [Any?])
     case 135:
-      return VaultSessionReply.fromList(self.readValue() as! [Any?])
+      return OpenVaultSessionRequest.fromList(self.readValue() as! [Any?])
     case 136:
-      return PayloadReply.fromList(self.readValue() as! [Any?])
+      return RewrapVaultKeyRequest.fromList(self.readValue() as! [Any?])
     case 137:
-      return StatusReply.fromList(self.readValue() as! [Any?])
+      return EncryptPayloadRequest.fromList(self.readValue() as! [Any?])
     case 138:
-      return RecoveryCeremonyReply.fromList(self.readValue() as! [Any?])
+      return DecryptPayloadRequest.fromList(self.readValue() as! [Any?])
     case 139:
-      return ConfirmRecoveryKeyRequest.fromList(self.readValue() as! [Any?])
+      return VaultSessionReply.fromList(self.readValue() as! [Any?])
     case 140:
-      return OpenVaultWithRecoveryRequest.fromList(self.readValue() as! [Any?])
+      return PayloadReply.fromList(self.readValue() as! [Any?])
     case 141:
-      return SensitiveClipboardRequest.fromList(self.readValue() as! [Any?])
+      return StatusReply.fromList(self.readValue() as! [Any?])
     case 142:
+      return RecoveryCeremonyReply.fromList(self.readValue() as! [Any?])
+    case 143:
+      return ConfirmRecoveryKeyRequest.fromList(self.readValue() as! [Any?])
+    case 144:
+      return OpenVaultWithRecoveryRequest.fromList(self.readValue() as! [Any?])
+    case 145:
+      return SensitiveClipboardRequest.fromList(self.readValue() as! [Any?])
+    case 146:
       return BiometricStatusReply.fromList(self.readValue() as! [Any?])
+    case 147:
+      return FeatureStatusReply.fromList(self.readValue() as! [Any?])
+    case 148:
+      return NotificationPermissionReply.fromList(self.readValue() as! [Any?])
+    case 149:
+      return LauncherActionReply.fromList(self.readValue() as! [Any?])
+    case 150:
+      return WallClockRequest.fromList(self.readValue() as! [Any?])
+    case 151:
+      return WallClockReply.fromList(self.readValue() as! [Any?])
+    case 152:
+      return SafeReminderRequest.fromList(self.readValue() as! [Any?])
+    case 153:
+      return InboundShareDescriptorReply.fromList(self.readValue() as! [Any?])
+    case 154:
+      return InboundShareListReply.fromList(self.readValue() as! [Any?])
+    case 155:
+      return InboundShareChunkRequest.fromList(self.readValue() as! [Any?])
+    case 156:
+      return InboundShareChunkReply.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
     }
@@ -784,44 +1318,86 @@ private class KeyBridgeMessagesPigeonCodecWriter: FlutterStandardWriter {
     if let value = value as? KeyBridgeErrorCode {
       super.writeByte(129)
       super.writeValue(value.rawValue)
-    } else if let value = value as? CreateVaultKeyRequest {
+    } else if let value = value as? PlatformFeatureErrorCode {
       super.writeByte(130)
-      super.writeValue(value.toList())
-    } else if let value = value as? OpenVaultSessionRequest {
+      super.writeValue(value.rawValue)
+    } else if let value = value as? NotificationPermissionCode {
       super.writeByte(131)
-      super.writeValue(value.toList())
-    } else if let value = value as? RewrapVaultKeyRequest {
+      super.writeValue(value.rawValue)
+    } else if let value = value as? WallClockResolutionCode {
       super.writeByte(132)
-      super.writeValue(value.toList())
-    } else if let value = value as? EncryptPayloadRequest {
+      super.writeValue(value.rawValue)
+    } else if let value = value as? ShareKindCode {
       super.writeByte(133)
-      super.writeValue(value.toList())
-    } else if let value = value as? DecryptPayloadRequest {
+      super.writeValue(value.rawValue)
+    } else if let value = value as? CreateVaultKeyRequest {
       super.writeByte(134)
       super.writeValue(value.toList())
-    } else if let value = value as? VaultSessionReply {
+    } else if let value = value as? OpenVaultSessionRequest {
       super.writeByte(135)
       super.writeValue(value.toList())
-    } else if let value = value as? PayloadReply {
+    } else if let value = value as? RewrapVaultKeyRequest {
       super.writeByte(136)
       super.writeValue(value.toList())
-    } else if let value = value as? StatusReply {
+    } else if let value = value as? EncryptPayloadRequest {
       super.writeByte(137)
       super.writeValue(value.toList())
-    } else if let value = value as? RecoveryCeremonyReply {
+    } else if let value = value as? DecryptPayloadRequest {
       super.writeByte(138)
       super.writeValue(value.toList())
-    } else if let value = value as? ConfirmRecoveryKeyRequest {
+    } else if let value = value as? VaultSessionReply {
       super.writeByte(139)
       super.writeValue(value.toList())
-    } else if let value = value as? OpenVaultWithRecoveryRequest {
+    } else if let value = value as? PayloadReply {
       super.writeByte(140)
       super.writeValue(value.toList())
-    } else if let value = value as? SensitiveClipboardRequest {
+    } else if let value = value as? StatusReply {
       super.writeByte(141)
       super.writeValue(value.toList())
-    } else if let value = value as? BiometricStatusReply {
+    } else if let value = value as? RecoveryCeremonyReply {
       super.writeByte(142)
+      super.writeValue(value.toList())
+    } else if let value = value as? ConfirmRecoveryKeyRequest {
+      super.writeByte(143)
+      super.writeValue(value.toList())
+    } else if let value = value as? OpenVaultWithRecoveryRequest {
+      super.writeByte(144)
+      super.writeValue(value.toList())
+    } else if let value = value as? SensitiveClipboardRequest {
+      super.writeByte(145)
+      super.writeValue(value.toList())
+    } else if let value = value as? BiometricStatusReply {
+      super.writeByte(146)
+      super.writeValue(value.toList())
+    } else if let value = value as? FeatureStatusReply {
+      super.writeByte(147)
+      super.writeValue(value.toList())
+    } else if let value = value as? NotificationPermissionReply {
+      super.writeByte(148)
+      super.writeValue(value.toList())
+    } else if let value = value as? LauncherActionReply {
+      super.writeByte(149)
+      super.writeValue(value.toList())
+    } else if let value = value as? WallClockRequest {
+      super.writeByte(150)
+      super.writeValue(value.toList())
+    } else if let value = value as? WallClockReply {
+      super.writeByte(151)
+      super.writeValue(value.toList())
+    } else if let value = value as? SafeReminderRequest {
+      super.writeByte(152)
+      super.writeValue(value.toList())
+    } else if let value = value as? InboundShareDescriptorReply {
+      super.writeByte(153)
+      super.writeValue(value.toList())
+    } else if let value = value as? InboundShareListReply {
+      super.writeByte(154)
+      super.writeValue(value.toList())
+    } else if let value = value as? InboundShareChunkRequest {
+      super.writeByte(155)
+      super.writeValue(value.toList())
+    } else if let value = value as? InboundShareChunkReply {
+      super.writeByte(156)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -878,6 +1454,18 @@ protocol KeyBridgeHostApi: Sendable {
   func openVaultWithBiometric(vaultId: String) async throws -> VaultSessionReply
   func disableBiometric(sessionHandle: String) async throws -> StatusReply
   func biometricStatus(vaultId: String) throws -> BiometricStatusReply
+  func notificationPermissionStatus() async throws -> NotificationPermissionReply
+  func requestNotificationPermission() async throws -> NotificationPermissionReply
+  func openNotificationSettings() throws -> FeatureStatusReply
+  func resolveWallClock(request: WallClockRequest) throws -> WallClockReply
+  func replaceReminder(request: SafeReminderRequest) async throws -> FeatureStatusReply
+  func cancelReminder(syntheticId: String) throws -> FeatureStatusReply
+  func installLauncherShortcuts() throws -> FeatureStatusReply
+  func consumeLauncherAction() throws -> LauncherActionReply
+  func listInboundShares() throws -> InboundShareListReply
+  func readInboundShareChunk(request: InboundShareChunkRequest) throws -> InboundShareChunkReply
+  func deleteInboundShare(id: String) throws -> FeatureStatusReply
+  func purgeExpiredInboundShares(nowUtcEpochMilliseconds: Int64) throws -> FeatureStatusReply
   func excludePathFromBackup(absolutePath: String) throws -> StatusReply
   func closeSession(sessionHandle: String) throws -> StatusReply
   func closeAllSessions() throws -> StatusReply
@@ -1172,6 +1760,183 @@ class KeyBridgeHostApiSetup {
     } else {
       biometricStatusChannel.setMessageHandler(nil)
     }
+    let notificationPermissionStatusChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.notificationPermissionStatus\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      notificationPermissionStatusChannel.setMessageHandler { _, reply in
+        let replyBox = KeyBridgeMessagesPigeonReplyBox(reply)
+        Task { @MainActor in
+          do {
+            let result = try await api.notificationPermissionStatus()
+            replyBox.call(wrapResult(result))
+          } catch {
+            replyBox.call(wrapError(error))
+          }
+        }
+      }
+    } else {
+      notificationPermissionStatusChannel.setMessageHandler(nil)
+    }
+    let requestNotificationPermissionChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.requestNotificationPermission\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      requestNotificationPermissionChannel.setMessageHandler { _, reply in
+        let replyBox = KeyBridgeMessagesPigeonReplyBox(reply)
+        Task { @MainActor in
+          do {
+            let result = try await api.requestNotificationPermission()
+            replyBox.call(wrapResult(result))
+          } catch {
+            replyBox.call(wrapError(error))
+          }
+        }
+      }
+    } else {
+      requestNotificationPermissionChannel.setMessageHandler(nil)
+    }
+    let openNotificationSettingsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.openNotificationSettings\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      openNotificationSettingsChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.openNotificationSettings()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      openNotificationSettingsChannel.setMessageHandler(nil)
+    }
+    let resolveWallClockChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.resolveWallClock\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      resolveWallClockChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let requestArg = args[0] as! WallClockRequest
+        do {
+          let result = try api.resolveWallClock(request: requestArg)
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      resolveWallClockChannel.setMessageHandler(nil)
+    }
+    let replaceReminderChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.replaceReminder\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      replaceReminderChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let requestArg = args[0] as! SafeReminderRequest
+        let replyBox = KeyBridgeMessagesPigeonReplyBox(reply)
+        Task { @MainActor in
+          do {
+            let result = try await api.replaceReminder(request: requestArg)
+            replyBox.call(wrapResult(result))
+          } catch {
+            replyBox.call(wrapError(error))
+          }
+        }
+      }
+    } else {
+      replaceReminderChannel.setMessageHandler(nil)
+    }
+    let cancelReminderChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.cancelReminder\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      cancelReminderChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let syntheticIdArg = args[0] as! String
+        do {
+          let result = try api.cancelReminder(syntheticId: syntheticIdArg)
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      cancelReminderChannel.setMessageHandler(nil)
+    }
+    let installLauncherShortcutsChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.installLauncherShortcuts\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      installLauncherShortcutsChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.installLauncherShortcuts()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      installLauncherShortcutsChannel.setMessageHandler(nil)
+    }
+    let consumeLauncherActionChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.consumeLauncherAction\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      consumeLauncherActionChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.consumeLauncherAction()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      consumeLauncherActionChannel.setMessageHandler(nil)
+    }
+    let listInboundSharesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.listInboundShares\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      listInboundSharesChannel.setMessageHandler { _, reply in
+        do {
+          let result = try api.listInboundShares()
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      listInboundSharesChannel.setMessageHandler(nil)
+    }
+    let readInboundShareChunkChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.readInboundShareChunk\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      readInboundShareChunkChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let requestArg = args[0] as! InboundShareChunkRequest
+        do {
+          let result = try api.readInboundShareChunk(request: requestArg)
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      readInboundShareChunkChannel.setMessageHandler(nil)
+    }
+    let deleteInboundShareChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.deleteInboundShare\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      deleteInboundShareChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let idArg = args[0] as! String
+        do {
+          let result = try api.deleteInboundShare(id: idArg)
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      deleteInboundShareChannel.setMessageHandler(nil)
+    }
+    let purgeExpiredInboundSharesChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.purgeExpiredInboundShares\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      purgeExpiredInboundSharesChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let nowUtcEpochMillisecondsArg = args[0] as! Int64
+        do {
+          let result = try api.purgeExpiredInboundShares(nowUtcEpochMilliseconds: nowUtcEpochMillisecondsArg)
+          reply(wrapResult(result))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      purgeExpiredInboundSharesChannel.setMessageHandler(nil)
+    }
     let excludePathFromBackupChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.excludePathFromBackup\(channelSuffix)", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       excludePathFromBackupChannel.setMessageHandler { message, reply in
@@ -1222,3 +1987,4 @@ class KeyBridgeHostApiSetup {
 // this explicit reviewed boundary when results return to the main-actor reply.
 extension VaultSessionReply: @unchecked Sendable {}
 extension StatusReply: @unchecked Sendable {}
+extension NotificationPermissionReply: @unchecked Sendable {}

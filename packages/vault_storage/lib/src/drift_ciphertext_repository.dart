@@ -7,7 +7,7 @@ import 'package:sqlite3/common.dart';
 import 'database.dart';
 import 'sqlite_failure.dart';
 
-final class DriftCiphertextRepository implements CiphertextRepository {
+final class DriftCiphertextRepository implements AtomicCiphertextRepository {
   const DriftCiphertextRepository(this._database, {required this._vaultId});
 
   final LocalholdVaultDatabase _database;
@@ -121,6 +121,45 @@ final class DriftCiphertextRepository implements CiphertextRepository {
       if (affected != 1) {
         throw const VaultFailure(VaultFailureCode.revisionConflict);
       }
+    } on SqliteException catch (error) {
+      throw mapSqliteFailure(error);
+    }
+  }
+
+  @override
+  Future<void> replaceMany(
+    Iterable<ExpectedEncryptedObject> replacements,
+  ) async {
+    final items = replacements.toList(growable: false);
+    if (items.isEmpty) return;
+    if (items.map((item) => item.object.objectId).toSet().length !=
+        items.length) {
+      throw const VaultFailure(VaultFailureCode.invalidInput);
+    }
+    try {
+      await _database.transaction(() async {
+        for (final item in items) {
+          final object = item.object;
+          final affected =
+              await (_database.update(_database.encryptedObjects)..where(
+                    (row) =>
+                        row.vaultId.equals(_vaultId.value) &
+                        row.objectId.equals(object.objectId) &
+                        row.revision.equals(item.expectedRevision),
+                  ))
+                  .write(
+                    EncryptedObjectsCompanion(
+                      revision: Value(object.revision),
+                      schemaVersion: Value(object.schemaVersion),
+                      keyGenerationId: Value(object.keyGenerationId),
+                      envelope: Value(Uint8List.fromList(object.envelope)),
+                    ),
+                  );
+          if (affected != 1) {
+            throw const VaultFailure(VaultFailureCode.revisionConflict);
+          }
+        }
+      });
     } on SqliteException catch (error) {
       throw mapSqliteFailure(error);
     }

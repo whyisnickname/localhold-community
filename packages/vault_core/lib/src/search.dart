@@ -12,12 +12,15 @@ enum VaultRecordSort {
   updatedOldest,
   createdNewest,
   createdOldest,
+  safeTitleAscending,
+  safeTitleDescending,
 }
 
 final class VaultSearchFilter {
   const VaultSearchFilter({
     this.lifecycle,
     this.favoriteOnly = false,
+    this.pinnedOnly = false,
     this.folderId,
     this.requiredTagIds = const {},
     this.sort = VaultRecordSort.updatedNewest,
@@ -25,6 +28,7 @@ final class VaultSearchFilter {
 
   final RecordLifecycle? lifecycle;
   final bool favoriteOnly;
+  final bool pinnedOnly;
   final String? folderId;
   final Set<String> requiredTagIds;
   final VaultRecordSort sort;
@@ -64,11 +68,13 @@ final class SearchDocument {
     required this.record,
     required this.publicText,
     required this.protectedText,
+    this.safeSortKey = '',
   });
 
   final VaultRecord record;
   final Iterable<String> publicText;
   final Iterable<String> protectedText;
+  final String safeSortKey;
 }
 
 final class SearchIndexProgress {
@@ -130,12 +136,20 @@ final class VaultSearchIndex {
     _protectedSearchAuthorized = true;
   }
 
+  bool get protectedSearchAuthorized => _protectedSearchAuthorized;
+
+  void revokeProtectedSearch() {
+    _ensureAlive();
+    _protectedSearchAuthorized = false;
+  }
+
   void put(SearchDocument document) {
     _ensureAlive();
     _documents[document.record.id.value] = _IndexedDocument(
       record: document.record,
       publicText: _join(document.publicText),
       protectedText: _join(document.protectedText),
+      safeSortKey: _normalizer.normalize(document.safeSortKey),
     );
   }
 
@@ -162,14 +176,19 @@ final class VaultSearchIndex {
         results.add(document.record);
       }
     }
-    results.sort(
-      (a, b) => switch (filter.sort) {
-        VaultRecordSort.updatedNewest => b.updatedAt.compareTo(a.updatedAt),
-        VaultRecordSort.updatedOldest => a.updatedAt.compareTo(b.updatedAt),
-        VaultRecordSort.createdNewest => b.createdAt.compareTo(a.createdAt),
-        VaultRecordSort.createdOldest => a.createdAt.compareTo(b.createdAt),
-      },
-    );
+    _sort(results, filter.sort);
+    return List.unmodifiable(results);
+  }
+
+  List<VaultRecord> browse({
+    VaultSearchFilter filter = const VaultSearchFilter(),
+  }) {
+    _ensureAlive();
+    final results = _documents.values
+        .where((document) => _matchesFilter(document.record, filter))
+        .map((document) => document.record)
+        .toList(growable: false);
+    _sort(results, filter.sort);
     return List.unmodifiable(results);
   }
 
@@ -178,12 +197,35 @@ final class VaultSearchIndex {
       return false;
     }
     if (filter.favoriteOnly && !record.favorite) return false;
+    if (filter.pinnedOnly && !record.pinned) return false;
     if (filter.folderId != null && record.folderId?.value != filter.folderId) {
       return false;
     }
     final tagIds = record.tagIds.map((tag) => tag.value).toSet();
     return tagIds.containsAll(filter.requiredTagIds);
   }
+
+  void _sort(List<VaultRecord> records, VaultRecordSort sort) {
+    records.sort((a, b) {
+      if (a.pinned != b.pinned) return a.pinned ? -1 : 1;
+      final result = switch (sort) {
+        VaultRecordSort.updatedNewest => b.updatedAt.compareTo(a.updatedAt),
+        VaultRecordSort.updatedOldest => a.updatedAt.compareTo(b.updatedAt),
+        VaultRecordSort.createdNewest => b.createdAt.compareTo(a.createdAt),
+        VaultRecordSort.createdOldest => a.createdAt.compareTo(b.createdAt),
+        VaultRecordSort.safeTitleAscending => _safeSortKey(
+          a,
+        ).compareTo(_safeSortKey(b)),
+        VaultRecordSort.safeTitleDescending => _safeSortKey(
+          b,
+        ).compareTo(_safeSortKey(a)),
+      };
+      return result != 0 ? result : a.id.value.compareTo(b.id.value);
+    });
+  }
+
+  String _safeSortKey(VaultRecord record) =>
+      _documents[record.id.value]?.safeSortKey ?? '';
 
   void destroy() {
     _documents.clear();
@@ -206,11 +248,13 @@ final class _IndexedDocument {
     required this.record,
     required this.publicText,
     required this.protectedText,
+    required this.safeSortKey,
   });
 
   final VaultRecord record;
   final String publicText;
   final String protectedText;
+  final String safeSortKey;
 }
 
 final class SearchSessionObserver implements VaultSessionObserver {

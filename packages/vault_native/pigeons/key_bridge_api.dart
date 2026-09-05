@@ -153,6 +153,125 @@ class BiometricStatusReply {
   KeyBridgeErrorCode? error;
 }
 
+enum PlatformFeatureErrorCode {
+  invalidRequest,
+  permissionDenied,
+  permissionRestricted,
+  notFound,
+  platformUnavailable,
+  internalFailure,
+}
+
+enum NotificationPermissionCode {
+  notDetermined,
+  denied,
+  restricted,
+  authorized,
+}
+
+enum WallClockResolutionCode { unique, earlier, later, gapAdjusted }
+
+enum ShareKindCode { text, url, file, image }
+
+class FeatureStatusReply {
+  FeatureStatusReply({this.error});
+  PlatformFeatureErrorCode? error;
+}
+
+class NotificationPermissionReply {
+  NotificationPermissionReply({required this.state, this.error});
+  NotificationPermissionCode state;
+  PlatformFeatureErrorCode? error;
+}
+
+class LauncherActionReply {
+  LauncherActionReply({required this.actionCode, this.error});
+  int actionCode;
+  PlatformFeatureErrorCode? error;
+}
+
+class WallClockRequest {
+  WallClockRequest({
+    required this.year,
+    required this.month,
+    required this.day,
+    required this.hour,
+    required this.minute,
+    required this.timeZoneId,
+  });
+  int year;
+  int month;
+  int day;
+  int hour;
+  int minute;
+  String timeZoneId;
+}
+
+class WallClockReply {
+  WallClockReply({
+    required this.utcEpochMilliseconds,
+    required this.resolution,
+    this.error,
+  });
+  int utcEpochMilliseconds;
+  WallClockResolutionCode resolution;
+  PlatformFeatureErrorCode? error;
+}
+
+class SafeReminderRequest {
+  SafeReminderRequest({
+    required this.syntheticId,
+    required this.utcEpochMilliseconds,
+    required this.privacyCode,
+    this.safeName,
+    this.safeAmount,
+  });
+  String syntheticId;
+  int utcEpochMilliseconds;
+  int privacyCode;
+  String? safeName;
+  String? safeAmount;
+}
+
+class InboundShareDescriptorReply {
+  InboundShareDescriptorReply({
+    required this.id,
+    required this.kind,
+    required this.byteLength,
+    required this.receivedUtcEpochMilliseconds,
+    required this.expiresUtcEpochMilliseconds,
+  });
+  String id;
+  ShareKindCode kind;
+  int byteLength;
+  int receivedUtcEpochMilliseconds;
+  int expiresUtcEpochMilliseconds;
+}
+
+class InboundShareListReply {
+  InboundShareListReply({required this.items, this.error});
+  List<InboundShareDescriptorReply> items;
+  PlatformFeatureErrorCode? error;
+}
+
+class InboundShareChunkRequest {
+  InboundShareChunkRequest({
+    required this.id,
+    required this.offset,
+    required this.maximumBytes,
+  });
+  String id;
+  int offset;
+  int maximumBytes;
+}
+
+class InboundShareChunkReply {
+  InboundShareChunkReply({required this.bytes, required this.done, this.error});
+  Uint8List bytes;
+  bool done;
+  PlatformFeatureErrorCode? error;
+}
+
 @HostApi()
 abstract class KeyBridgeHostApi {
   @TaskQueue(type: TaskQueueType.serialBackgroundThread)
@@ -199,6 +318,35 @@ abstract class KeyBridgeHostApi {
   StatusReply disableBiometric(String sessionHandle);
 
   BiometricStatusReply biometricStatus(String vaultId);
+
+  @async
+  NotificationPermissionReply notificationPermissionStatus();
+
+  @async
+  NotificationPermissionReply requestNotificationPermission();
+
+  FeatureStatusReply openNotificationSettings();
+
+  WallClockReply resolveWallClock(WallClockRequest request);
+
+  @async
+  FeatureStatusReply replaceReminder(SafeReminderRequest request);
+
+  FeatureStatusReply cancelReminder(String syntheticId);
+
+  FeatureStatusReply installLauncherShortcuts();
+
+  LauncherActionReply consumeLauncherAction();
+
+  InboundShareListReply listInboundShares();
+
+  InboundShareChunkReply readInboundShareChunk(
+    InboundShareChunkRequest request,
+  );
+
+  FeatureStatusReply deleteInboundShare(String id);
+
+  FeatureStatusReply purgeExpiredInboundShares(int nowUtcEpochMilliseconds);
 
   StatusReply excludePathFromBackup(String absolutePath);
 

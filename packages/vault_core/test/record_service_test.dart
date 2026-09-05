@@ -121,6 +121,63 @@ void main() {
       );
     },
   );
+
+  test(
+    'multi-record update fails closed without an atomic repository',
+    () async {
+      final repository = _MemoryRepository();
+      final service = EncryptedRecordService(
+        repository: repository,
+        cipher: _PassThroughCipher(),
+        creationPolicy: const _AllowPolicy(),
+      );
+      final first = _record();
+      final second = _record();
+      await service.create(first);
+      await service.create(second);
+
+      await expectLater(
+        service.updateMany(
+          proposed: [
+            first.copyWith(favorite: true),
+            second.copyWith(favorite: true),
+          ],
+          now: DateTime.utc(2026, 9, 5),
+        ),
+        throwsA(_failure(VaultFailureCode.capabilityUnavailable)),
+      );
+
+      expect((await service.read(first.id))!.favorite, isFalse);
+      expect((await service.read(second.id))!.favorite, isFalse);
+    },
+  );
+
+  test('metadata batch rejects field changes before any mutation', () async {
+    final repository = _MemoryRepository();
+    final service = EncryptedRecordService(
+      repository: repository,
+      cipher: _PassThroughCipher(),
+      creationPolicy: const _AllowPolicy(),
+    );
+    final first = _record();
+    final second = _record();
+    await service.create(first);
+    await service.create(second);
+
+    await expectLater(
+      service.updateMany(
+        proposed: [
+          first.copyWith(
+            fields: [_field('changed', id: first.fields.single.id)],
+          ),
+          second,
+        ],
+        now: DateTime.utc(2026, 9, 5),
+      ),
+      throwsA(_failure(VaultFailureCode.invalidInput)),
+    );
+    expect((await service.read(first.id))!.fields.single.value, 'original');
+  });
 }
 
 VaultRecord _record() {

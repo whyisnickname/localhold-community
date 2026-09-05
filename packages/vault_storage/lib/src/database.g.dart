@@ -2102,6 +2102,294 @@ class VaultSelectionsCompanion extends UpdateCompanion<VaultSelection> {
   }
 }
 
+class $VaultUnlockEntriesTable extends VaultUnlockEntries
+    with TableInfo<$VaultUnlockEntriesTable, VaultUnlockEntryRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VaultUnlockEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _vaultIdMeta = const VerificationMeta(
+    'vaultId',
+  );
+  @override
+  late final GeneratedColumn<String> vaultId = GeneratedColumn<String>(
+    'vault_id',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 22,
+      maxTextLength: 22,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ordinalMeta = const VerificationMeta(
+    'ordinal',
+  );
+  @override
+  late final GeneratedColumn<int> ordinal = GeneratedColumn<int>(
+    'ordinal',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _publicLabelMeta = const VerificationMeta(
+    'publicLabel',
+  );
+  @override
+  late final GeneratedColumn<String> publicLabel = GeneratedColumn<String>(
+    'public_label',
+    aliasedName,
+    true,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 80,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [vaultId, ordinal, publicLabel];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'vault_unlock_entries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<VaultUnlockEntryRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('vault_id')) {
+      context.handle(
+        _vaultIdMeta,
+        vaultId.isAcceptableOrUnknown(data['vault_id']!, _vaultIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_vaultIdMeta);
+    }
+    if (data.containsKey('ordinal')) {
+      context.handle(
+        _ordinalMeta,
+        ordinal.isAcceptableOrUnknown(data['ordinal']!, _ordinalMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ordinalMeta);
+    }
+    if (data.containsKey('public_label')) {
+      context.handle(
+        _publicLabelMeta,
+        publicLabel.isAcceptableOrUnknown(
+          data['public_label']!,
+          _publicLabelMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {vaultId};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {ordinal},
+  ];
+  @override
+  VaultUnlockEntryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VaultUnlockEntryRow(
+      vaultId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}vault_id'],
+      )!,
+      ordinal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ordinal'],
+      )!,
+      publicLabel: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}public_label'],
+      ),
+    );
+  }
+
+  @override
+  $VaultUnlockEntriesTable createAlias(String alias) {
+    return $VaultUnlockEntriesTable(attachedDatabase, alias);
+  }
+}
+
+class VaultUnlockEntryRow extends DataClass
+    implements Insertable<VaultUnlockEntryRow> {
+  final String vaultId;
+  final int ordinal;
+  final String? publicLabel;
+  const VaultUnlockEntryRow({
+    required this.vaultId,
+    required this.ordinal,
+    this.publicLabel,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['vault_id'] = Variable<String>(vaultId);
+    map['ordinal'] = Variable<int>(ordinal);
+    if (!nullToAbsent || publicLabel != null) {
+      map['public_label'] = Variable<String>(publicLabel);
+    }
+    return map;
+  }
+
+  VaultUnlockEntriesCompanion toCompanion(bool nullToAbsent) {
+    return VaultUnlockEntriesCompanion(
+      vaultId: Value(vaultId),
+      ordinal: Value(ordinal),
+      publicLabel: publicLabel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(publicLabel),
+    );
+  }
+
+  factory VaultUnlockEntryRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VaultUnlockEntryRow(
+      vaultId: serializer.fromJson<String>(json['vaultId']),
+      ordinal: serializer.fromJson<int>(json['ordinal']),
+      publicLabel: serializer.fromJson<String?>(json['publicLabel']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'vaultId': serializer.toJson<String>(vaultId),
+      'ordinal': serializer.toJson<int>(ordinal),
+      'publicLabel': serializer.toJson<String?>(publicLabel),
+    };
+  }
+
+  VaultUnlockEntryRow copyWith({
+    String? vaultId,
+    int? ordinal,
+    Value<String?> publicLabel = const Value.absent(),
+  }) => VaultUnlockEntryRow(
+    vaultId: vaultId ?? this.vaultId,
+    ordinal: ordinal ?? this.ordinal,
+    publicLabel: publicLabel.present ? publicLabel.value : this.publicLabel,
+  );
+  VaultUnlockEntryRow copyWithCompanion(VaultUnlockEntriesCompanion data) {
+    return VaultUnlockEntryRow(
+      vaultId: data.vaultId.present ? data.vaultId.value : this.vaultId,
+      ordinal: data.ordinal.present ? data.ordinal.value : this.ordinal,
+      publicLabel: data.publicLabel.present
+          ? data.publicLabel.value
+          : this.publicLabel,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VaultUnlockEntryRow(')
+          ..write('vaultId: $vaultId, ')
+          ..write('ordinal: $ordinal, ')
+          ..write('publicLabel: $publicLabel')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(vaultId, ordinal, publicLabel);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VaultUnlockEntryRow &&
+          other.vaultId == this.vaultId &&
+          other.ordinal == this.ordinal &&
+          other.publicLabel == this.publicLabel);
+}
+
+class VaultUnlockEntriesCompanion extends UpdateCompanion<VaultUnlockEntryRow> {
+  final Value<String> vaultId;
+  final Value<int> ordinal;
+  final Value<String?> publicLabel;
+  final Value<int> rowid;
+  const VaultUnlockEntriesCompanion({
+    this.vaultId = const Value.absent(),
+    this.ordinal = const Value.absent(),
+    this.publicLabel = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VaultUnlockEntriesCompanion.insert({
+    required String vaultId,
+    required int ordinal,
+    this.publicLabel = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : vaultId = Value(vaultId),
+       ordinal = Value(ordinal);
+  static Insertable<VaultUnlockEntryRow> custom({
+    Expression<String>? vaultId,
+    Expression<int>? ordinal,
+    Expression<String>? publicLabel,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (vaultId != null) 'vault_id': vaultId,
+      if (ordinal != null) 'ordinal': ordinal,
+      if (publicLabel != null) 'public_label': publicLabel,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VaultUnlockEntriesCompanion copyWith({
+    Value<String>? vaultId,
+    Value<int>? ordinal,
+    Value<String?>? publicLabel,
+    Value<int>? rowid,
+  }) {
+    return VaultUnlockEntriesCompanion(
+      vaultId: vaultId ?? this.vaultId,
+      ordinal: ordinal ?? this.ordinal,
+      publicLabel: publicLabel ?? this.publicLabel,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (vaultId.present) {
+      map['vault_id'] = Variable<String>(vaultId.value);
+    }
+    if (ordinal.present) {
+      map['ordinal'] = Variable<int>(ordinal.value);
+    }
+    if (publicLabel.present) {
+      map['public_label'] = Variable<String>(publicLabel.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VaultUnlockEntriesCompanion(')
+          ..write('vaultId: $vaultId, ')
+          ..write('ordinal: $ordinal, ')
+          ..write('publicLabel: $publicLabel, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LocalholdVaultDatabase extends GeneratedDatabase {
   _$LocalholdVaultDatabase(QueryExecutor e) : super(e);
   $LocalholdVaultDatabaseManager get managers =>
@@ -2120,6 +2408,8 @@ abstract class _$LocalholdVaultDatabase extends GeneratedDatabase {
   late final $VaultSelectionsTable vaultSelections = $VaultSelectionsTable(
     this,
   );
+  late final $VaultUnlockEntriesTable vaultUnlockEntries =
+      $VaultUnlockEntriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2131,6 +2421,7 @@ abstract class _$LocalholdVaultDatabase extends GeneratedDatabase {
     unlockThrottles,
     migrationJournals,
     vaultSelections,
+    vaultUnlockEntries,
   ];
 }
 
@@ -3320,6 +3611,183 @@ typedef $$VaultSelectionsTableProcessedTableManager =
       VaultSelection,
       PrefetchHooks Function()
     >;
+typedef $$VaultUnlockEntriesTableCreateCompanionBuilder =
+    VaultUnlockEntriesCompanion Function({
+      required String vaultId,
+      required int ordinal,
+      Value<String?> publicLabel,
+      Value<int> rowid,
+    });
+typedef $$VaultUnlockEntriesTableUpdateCompanionBuilder =
+    VaultUnlockEntriesCompanion Function({
+      Value<String> vaultId,
+      Value<int> ordinal,
+      Value<String?> publicLabel,
+      Value<int> rowid,
+    });
+
+class $$VaultUnlockEntriesTableFilterComposer
+    extends Composer<_$LocalholdVaultDatabase, $VaultUnlockEntriesTable> {
+  $$VaultUnlockEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get vaultId => $composableBuilder(
+    column: $table.vaultId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get ordinal => $composableBuilder(
+    column: $table.ordinal,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get publicLabel => $composableBuilder(
+    column: $table.publicLabel,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$VaultUnlockEntriesTableOrderingComposer
+    extends Composer<_$LocalholdVaultDatabase, $VaultUnlockEntriesTable> {
+  $$VaultUnlockEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get vaultId => $composableBuilder(
+    column: $table.vaultId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get ordinal => $composableBuilder(
+    column: $table.ordinal,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get publicLabel => $composableBuilder(
+    column: $table.publicLabel,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$VaultUnlockEntriesTableAnnotationComposer
+    extends Composer<_$LocalholdVaultDatabase, $VaultUnlockEntriesTable> {
+  $$VaultUnlockEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get vaultId =>
+      $composableBuilder(column: $table.vaultId, builder: (column) => column);
+
+  GeneratedColumn<int> get ordinal =>
+      $composableBuilder(column: $table.ordinal, builder: (column) => column);
+
+  GeneratedColumn<String> get publicLabel => $composableBuilder(
+    column: $table.publicLabel,
+    builder: (column) => column,
+  );
+}
+
+class $$VaultUnlockEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$LocalholdVaultDatabase,
+          $VaultUnlockEntriesTable,
+          VaultUnlockEntryRow,
+          $$VaultUnlockEntriesTableFilterComposer,
+          $$VaultUnlockEntriesTableOrderingComposer,
+          $$VaultUnlockEntriesTableAnnotationComposer,
+          $$VaultUnlockEntriesTableCreateCompanionBuilder,
+          $$VaultUnlockEntriesTableUpdateCompanionBuilder,
+          (
+            VaultUnlockEntryRow,
+            BaseReferences<
+              _$LocalholdVaultDatabase,
+              $VaultUnlockEntriesTable,
+              VaultUnlockEntryRow
+            >,
+          ),
+          VaultUnlockEntryRow,
+          PrefetchHooks Function()
+        > {
+  $$VaultUnlockEntriesTableTableManager(
+    _$LocalholdVaultDatabase db,
+    $VaultUnlockEntriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VaultUnlockEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VaultUnlockEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VaultUnlockEntriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> vaultId = const Value.absent(),
+                Value<int> ordinal = const Value.absent(),
+                Value<String?> publicLabel = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => VaultUnlockEntriesCompanion(
+                vaultId: vaultId,
+                ordinal: ordinal,
+                publicLabel: publicLabel,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String vaultId,
+                required int ordinal,
+                Value<String?> publicLabel = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => VaultUnlockEntriesCompanion.insert(
+                vaultId: vaultId,
+                ordinal: ordinal,
+                publicLabel: publicLabel,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$VaultUnlockEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$LocalholdVaultDatabase,
+      $VaultUnlockEntriesTable,
+      VaultUnlockEntryRow,
+      $$VaultUnlockEntriesTableFilterComposer,
+      $$VaultUnlockEntriesTableOrderingComposer,
+      $$VaultUnlockEntriesTableAnnotationComposer,
+      $$VaultUnlockEntriesTableCreateCompanionBuilder,
+      $$VaultUnlockEntriesTableUpdateCompanionBuilder,
+      (
+        VaultUnlockEntryRow,
+        BaseReferences<
+          _$LocalholdVaultDatabase,
+          $VaultUnlockEntriesTable,
+          VaultUnlockEntryRow
+        >,
+      ),
+      VaultUnlockEntryRow,
+      PrefetchHooks Function()
+    >;
 
 class $LocalholdVaultDatabaseManager {
   final _$LocalholdVaultDatabase _db;
@@ -3336,4 +3804,6 @@ class $LocalholdVaultDatabaseManager {
       $$MigrationJournalsTableTableManager(_db, _db.migrationJournals);
   $$VaultSelectionsTableTableManager get vaultSelections =>
       $$VaultSelectionsTableTableManager(_db, _db.vaultSelections);
+  $$VaultUnlockEntriesTableTableManager get vaultUnlockEntries =>
+      $$VaultUnlockEntriesTableTableManager(_db, _db.vaultUnlockEntries);
 }

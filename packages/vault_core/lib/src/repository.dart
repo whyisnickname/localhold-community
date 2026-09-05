@@ -21,6 +21,16 @@ final class EncryptedObject {
   final Uint8List envelope;
 }
 
+final class ExpectedEncryptedObject {
+  const ExpectedEncryptedObject({
+    required this.object,
+    required this.expectedRevision,
+  });
+
+  final EncryptedObject object;
+  final int expectedRevision;
+}
+
 abstract interface class CiphertextRepository {
   Future<EncryptedObject?> read(String objectId);
 
@@ -45,6 +55,14 @@ abstract interface class CiphertextRepository {
     required int expectedRevision,
     required VaultFailureCode reason,
   });
+}
+
+/// Optional local capability used only when several ciphertext revisions must
+/// commit as one unit. Implementations must leave every object unchanged when
+/// any expected revision does not match.
+abstract interface class AtomicCiphertextRepository
+    implements CiphertextRepository {
+  Future<void> replaceMany(Iterable<ExpectedEncryptedObject> replacements);
 }
 
 abstract interface class PayloadCipher {

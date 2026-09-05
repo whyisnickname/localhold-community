@@ -13,6 +13,8 @@ dependencies:
   path: 1.9.1
   localhold_vault_core:
     path: ../vault_core
+  localhold_vault_access:
+    path: ../vault_access
   localhold_vault_native:
     path: ../vault_native
   sqlite3: 3.5.2

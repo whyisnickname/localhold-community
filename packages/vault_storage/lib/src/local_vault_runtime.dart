@@ -16,6 +16,7 @@ final class UnlockedVaultServices {
     required this.metadata,
     required this.records,
     required this.drafts,
+    required this.editorDrafts,
     required this.customTypes,
     required this.organization,
     required this.attachments,
@@ -26,6 +27,7 @@ final class UnlockedVaultServices {
   final EncryptedVaultMetadataService metadata;
   final EncryptedRecordService records;
   final EncryptedDraftService drafts;
+  final EncryptedEditorDraftService editorDrafts;
   final EncryptedCustomTypeService customTypes;
   final EncryptedOrganizationService organization;
   final EncryptedAttachmentStore attachments;
@@ -50,6 +52,7 @@ final class LocalVaultRuntime {
     required this._gateway,
     required this._sessions,
     required this._selection,
+    required this._unlockDirectory,
     required this._creationPolicy,
     required this._backupExclusion,
     required this._attachmentRoot,
@@ -64,6 +67,7 @@ final class LocalVaultRuntime {
   final NativeVaultKeyGateway _gateway;
   final VaultSessionCoordinator _sessions;
   final VaultSelectionStore _selection;
+  final VaultUnlockDirectoryStore _unlockDirectory;
   final VaultCreationPolicy _creationPolicy;
   final BackupExclusionGateway _backupExclusion;
   final Directory _attachmentRoot;
@@ -74,12 +78,20 @@ final class LocalVaultRuntime {
 
   Future<VaultId?> lastSelectedVault() => _selection.readLastSelected();
 
+  Future<List<VaultUnlockEntry>> lockedVaults() => _unlockDirectory.list();
+
+  Future<void> updatePublicLockScreenLabel(
+    VaultId vaultId,
+    String? publicLabel,
+  ) => _unlockDirectory.updatePublicLabel(vaultId, publicLabel);
+
   Future<LocalVaultActivation> create({
     required VaultId vaultId,
     required String localizedName,
     required Uint8List masterPassword,
     required DateTime now,
     required bool isAdditionalVault,
+    String? publicLockScreenLabel,
   }) async {
     if (_database.isReadOnly) {
       throw const VaultFailure(VaultFailureCode.readOnly);
@@ -103,6 +115,10 @@ final class LocalVaultRuntime {
           updatedAt: now.toUtc(),
         );
         await services.metadata.create(metadata);
+        await _unlockDirectory.register(
+          vaultId,
+          publicLabel: publicLockScreenLabel,
+        );
         await _selection.select(vaultId);
       });
       return LocalVaultActivation(metadata: metadata, services: services);
@@ -264,6 +280,11 @@ final class LocalVaultRuntime {
         health: health,
       ),
       drafts: EncryptedDraftService(
+        repository: repository,
+        cipher: cipher,
+        health: health,
+      ),
+      editorDrafts: EncryptedEditorDraftService(
         repository: repository,
         cipher: cipher,
         health: health,

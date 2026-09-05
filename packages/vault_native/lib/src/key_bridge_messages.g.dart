@@ -113,6 +113,26 @@ enum KeyBridgeErrorCode {
   internalFailure,
 }
 
+enum PlatformFeatureErrorCode {
+  invalidRequest,
+  permissionDenied,
+  permissionRestricted,
+  notFound,
+  platformUnavailable,
+  internalFailure,
+}
+
+enum NotificationPermissionCode {
+  notDetermined,
+  denied,
+  restricted,
+  authorized,
+}
+
+enum WallClockResolutionCode { unique, earlier, later, gapAdjusted }
+
+enum ShareKindCode { text, url, file, image }
+
 class CreateVaultKeyRequest {
   CreateVaultKeyRequest({required this.vaultId, required this.masterPassword});
 
@@ -778,6 +798,558 @@ class BiometricStatusReply {
   }
 }
 
+class FeatureStatusReply {
+  FeatureStatusReply({this.error});
+
+  PlatformFeatureErrorCode? error;
+
+  List<Object?> _toList() {
+    return <Object?>[error];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static FeatureStatusReply decode(Object result) {
+    result as List<Object?>;
+    return FeatureStatusReply(error: result[0] as PlatformFeatureErrorCode?);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! FeatureStatusReply || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(error, other.error);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'KeyBridgeMessage(<redacted>)';
+  }
+}
+
+class NotificationPermissionReply {
+  NotificationPermissionReply({required this.state, this.error});
+
+  NotificationPermissionCode state;
+
+  PlatformFeatureErrorCode? error;
+
+  List<Object?> _toList() {
+    return <Object?>[state, error];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static NotificationPermissionReply decode(Object result) {
+    result as List<Object?>;
+    return NotificationPermissionReply(
+      state: result[0]! as NotificationPermissionCode,
+      error: result[1] as PlatformFeatureErrorCode?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! NotificationPermissionReply ||
+        other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(state, other.state) && _deepEquals(error, other.error);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'KeyBridgeMessage(<redacted>)';
+  }
+}
+
+class LauncherActionReply {
+  LauncherActionReply({required this.actionCode, this.error});
+
+  int actionCode;
+
+  PlatformFeatureErrorCode? error;
+
+  List<Object?> _toList() {
+    return <Object?>[actionCode, error];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static LauncherActionReply decode(Object result) {
+    result as List<Object?>;
+    return LauncherActionReply(
+      actionCode: result[0]! as int,
+      error: result[1] as PlatformFeatureErrorCode?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! LauncherActionReply || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(actionCode, other.actionCode) &&
+        _deepEquals(error, other.error);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'KeyBridgeMessage(<redacted>)';
+  }
+}
+
+class WallClockRequest {
+  WallClockRequest({
+    required this.year,
+    required this.month,
+    required this.day,
+    required this.hour,
+    required this.minute,
+    required this.timeZoneId,
+  });
+
+  int year;
+
+  int month;
+
+  int day;
+
+  int hour;
+
+  int minute;
+
+  String timeZoneId;
+
+  List<Object?> _toList() {
+    return <Object?>[year, month, day, hour, minute, timeZoneId];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static WallClockRequest decode(Object result) {
+    result as List<Object?>;
+    return WallClockRequest(
+      year: result[0]! as int,
+      month: result[1]! as int,
+      day: result[2]! as int,
+      hour: result[3]! as int,
+      minute: result[4]! as int,
+      timeZoneId: result[5]! as String,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! WallClockRequest || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(year, other.year) &&
+        _deepEquals(month, other.month) &&
+        _deepEquals(day, other.day) &&
+        _deepEquals(hour, other.hour) &&
+        _deepEquals(minute, other.minute) &&
+        _deepEquals(timeZoneId, other.timeZoneId);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'KeyBridgeMessage(<redacted>)';
+  }
+}
+
+class WallClockReply {
+  WallClockReply({
+    required this.utcEpochMilliseconds,
+    required this.resolution,
+    this.error,
+  });
+
+  int utcEpochMilliseconds;
+
+  WallClockResolutionCode resolution;
+
+  PlatformFeatureErrorCode? error;
+
+  List<Object?> _toList() {
+    return <Object?>[utcEpochMilliseconds, resolution, error];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static WallClockReply decode(Object result) {
+    result as List<Object?>;
+    return WallClockReply(
+      utcEpochMilliseconds: result[0]! as int,
+      resolution: result[1]! as WallClockResolutionCode,
+      error: result[2] as PlatformFeatureErrorCode?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! WallClockReply || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(utcEpochMilliseconds, other.utcEpochMilliseconds) &&
+        _deepEquals(resolution, other.resolution) &&
+        _deepEquals(error, other.error);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'KeyBridgeMessage(<redacted>)';
+  }
+}
+
+class SafeReminderRequest {
+  SafeReminderRequest({
+    required this.syntheticId,
+    required this.utcEpochMilliseconds,
+    required this.privacyCode,
+    this.safeName,
+    this.safeAmount,
+  });
+
+  String syntheticId;
+
+  int utcEpochMilliseconds;
+
+  int privacyCode;
+
+  String? safeName;
+
+  String? safeAmount;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      syntheticId,
+      utcEpochMilliseconds,
+      privacyCode,
+      safeName,
+      safeAmount,
+    ];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static SafeReminderRequest decode(Object result) {
+    result as List<Object?>;
+    return SafeReminderRequest(
+      syntheticId: result[0]! as String,
+      utcEpochMilliseconds: result[1]! as int,
+      privacyCode: result[2]! as int,
+      safeName: result[3] as String?,
+      safeAmount: result[4] as String?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! SafeReminderRequest || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(syntheticId, other.syntheticId) &&
+        _deepEquals(utcEpochMilliseconds, other.utcEpochMilliseconds) &&
+        _deepEquals(privacyCode, other.privacyCode) &&
+        _deepEquals(safeName, other.safeName) &&
+        _deepEquals(safeAmount, other.safeAmount);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'KeyBridgeMessage(<redacted>)';
+  }
+}
+
+class InboundShareDescriptorReply {
+  InboundShareDescriptorReply({
+    required this.id,
+    required this.kind,
+    required this.byteLength,
+    required this.receivedUtcEpochMilliseconds,
+    required this.expiresUtcEpochMilliseconds,
+  });
+
+  String id;
+
+  ShareKindCode kind;
+
+  int byteLength;
+
+  int receivedUtcEpochMilliseconds;
+
+  int expiresUtcEpochMilliseconds;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      id,
+      kind,
+      byteLength,
+      receivedUtcEpochMilliseconds,
+      expiresUtcEpochMilliseconds,
+    ];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static InboundShareDescriptorReply decode(Object result) {
+    result as List<Object?>;
+    return InboundShareDescriptorReply(
+      id: result[0]! as String,
+      kind: result[1]! as ShareKindCode,
+      byteLength: result[2]! as int,
+      receivedUtcEpochMilliseconds: result[3]! as int,
+      expiresUtcEpochMilliseconds: result[4]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! InboundShareDescriptorReply ||
+        other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(id, other.id) &&
+        _deepEquals(kind, other.kind) &&
+        _deepEquals(byteLength, other.byteLength) &&
+        _deepEquals(
+          receivedUtcEpochMilliseconds,
+          other.receivedUtcEpochMilliseconds,
+        ) &&
+        _deepEquals(
+          expiresUtcEpochMilliseconds,
+          other.expiresUtcEpochMilliseconds,
+        );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'KeyBridgeMessage(<redacted>)';
+  }
+}
+
+class InboundShareListReply {
+  InboundShareListReply({required this.items, this.error});
+
+  List<InboundShareDescriptorReply> items;
+
+  PlatformFeatureErrorCode? error;
+
+  List<Object?> _toList() {
+    return <Object?>[items, error];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static InboundShareListReply decode(Object result) {
+    result as List<Object?>;
+    return InboundShareListReply(
+      items: (result[0]! as List<Object?>).cast<InboundShareDescriptorReply>(),
+      error: result[1] as PlatformFeatureErrorCode?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! InboundShareListReply || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(items, other.items) && _deepEquals(error, other.error);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'KeyBridgeMessage(<redacted>)';
+  }
+}
+
+class InboundShareChunkRequest {
+  InboundShareChunkRequest({
+    required this.id,
+    required this.offset,
+    required this.maximumBytes,
+  });
+
+  String id;
+
+  int offset;
+
+  int maximumBytes;
+
+  List<Object?> _toList() {
+    return <Object?>[id, offset, maximumBytes];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static InboundShareChunkRequest decode(Object result) {
+    result as List<Object?>;
+    return InboundShareChunkRequest(
+      id: result[0]! as String,
+      offset: result[1]! as int,
+      maximumBytes: result[2]! as int,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! InboundShareChunkRequest ||
+        other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(id, other.id) &&
+        _deepEquals(offset, other.offset) &&
+        _deepEquals(maximumBytes, other.maximumBytes);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'KeyBridgeMessage(<redacted>)';
+  }
+}
+
+class InboundShareChunkReply {
+  InboundShareChunkReply({required this.bytes, required this.done, this.error});
+
+  Uint8List bytes;
+
+  bool done;
+
+  PlatformFeatureErrorCode? error;
+
+  List<Object?> _toList() {
+    return <Object?>[bytes, done, error];
+  }
+
+  Object encode() {
+    return _toList();
+  }
+
+  static InboundShareChunkReply decode(Object result) {
+    result as List<Object?>;
+    return InboundShareChunkReply(
+      bytes: result[0]! as Uint8List,
+      done: result[1]! as bool,
+      error: result[2] as PlatformFeatureErrorCode?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! InboundShareChunkReply || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(bytes, other.bytes) &&
+        _deepEquals(done, other.done) &&
+        _deepEquals(error, other.error);
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => _deepHash(<Object?>[runtimeType, ..._toList()]);
+
+  @override
+  String toString() {
+    return 'KeyBridgeMessage(<redacted>)';
+  }
+}
+
 class _PigeonCodec extends StandardMessageCodec {
   const _PigeonCodec();
   @override
@@ -788,44 +1360,86 @@ class _PigeonCodec extends StandardMessageCodec {
     } else if (value is KeyBridgeErrorCode) {
       buffer.putUint8(129);
       writeValue(buffer, value.index);
-    } else if (value is CreateVaultKeyRequest) {
+    } else if (value is PlatformFeatureErrorCode) {
       buffer.putUint8(130);
-      writeValue(buffer, value.encode());
-    } else if (value is OpenVaultSessionRequest) {
+      writeValue(buffer, value.index);
+    } else if (value is NotificationPermissionCode) {
       buffer.putUint8(131);
-      writeValue(buffer, value.encode());
-    } else if (value is RewrapVaultKeyRequest) {
+      writeValue(buffer, value.index);
+    } else if (value is WallClockResolutionCode) {
       buffer.putUint8(132);
-      writeValue(buffer, value.encode());
-    } else if (value is EncryptPayloadRequest) {
+      writeValue(buffer, value.index);
+    } else if (value is ShareKindCode) {
       buffer.putUint8(133);
-      writeValue(buffer, value.encode());
-    } else if (value is DecryptPayloadRequest) {
+      writeValue(buffer, value.index);
+    } else if (value is CreateVaultKeyRequest) {
       buffer.putUint8(134);
       writeValue(buffer, value.encode());
-    } else if (value is VaultSessionReply) {
+    } else if (value is OpenVaultSessionRequest) {
       buffer.putUint8(135);
       writeValue(buffer, value.encode());
-    } else if (value is PayloadReply) {
+    } else if (value is RewrapVaultKeyRequest) {
       buffer.putUint8(136);
       writeValue(buffer, value.encode());
-    } else if (value is StatusReply) {
+    } else if (value is EncryptPayloadRequest) {
       buffer.putUint8(137);
       writeValue(buffer, value.encode());
-    } else if (value is RecoveryCeremonyReply) {
+    } else if (value is DecryptPayloadRequest) {
       buffer.putUint8(138);
       writeValue(buffer, value.encode());
-    } else if (value is ConfirmRecoveryKeyRequest) {
+    } else if (value is VaultSessionReply) {
       buffer.putUint8(139);
       writeValue(buffer, value.encode());
-    } else if (value is OpenVaultWithRecoveryRequest) {
+    } else if (value is PayloadReply) {
       buffer.putUint8(140);
       writeValue(buffer, value.encode());
-    } else if (value is SensitiveClipboardRequest) {
+    } else if (value is StatusReply) {
       buffer.putUint8(141);
       writeValue(buffer, value.encode());
-    } else if (value is BiometricStatusReply) {
+    } else if (value is RecoveryCeremonyReply) {
       buffer.putUint8(142);
+      writeValue(buffer, value.encode());
+    } else if (value is ConfirmRecoveryKeyRequest) {
+      buffer.putUint8(143);
+      writeValue(buffer, value.encode());
+    } else if (value is OpenVaultWithRecoveryRequest) {
+      buffer.putUint8(144);
+      writeValue(buffer, value.encode());
+    } else if (value is SensitiveClipboardRequest) {
+      buffer.putUint8(145);
+      writeValue(buffer, value.encode());
+    } else if (value is BiometricStatusReply) {
+      buffer.putUint8(146);
+      writeValue(buffer, value.encode());
+    } else if (value is FeatureStatusReply) {
+      buffer.putUint8(147);
+      writeValue(buffer, value.encode());
+    } else if (value is NotificationPermissionReply) {
+      buffer.putUint8(148);
+      writeValue(buffer, value.encode());
+    } else if (value is LauncherActionReply) {
+      buffer.putUint8(149);
+      writeValue(buffer, value.encode());
+    } else if (value is WallClockRequest) {
+      buffer.putUint8(150);
+      writeValue(buffer, value.encode());
+    } else if (value is WallClockReply) {
+      buffer.putUint8(151);
+      writeValue(buffer, value.encode());
+    } else if (value is SafeReminderRequest) {
+      buffer.putUint8(152);
+      writeValue(buffer, value.encode());
+    } else if (value is InboundShareDescriptorReply) {
+      buffer.putUint8(153);
+      writeValue(buffer, value.encode());
+    } else if (value is InboundShareListReply) {
+      buffer.putUint8(154);
+      writeValue(buffer, value.encode());
+    } else if (value is InboundShareChunkRequest) {
+      buffer.putUint8(155);
+      writeValue(buffer, value.encode());
+    } else if (value is InboundShareChunkReply) {
+      buffer.putUint8(156);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -839,31 +1453,63 @@ class _PigeonCodec extends StandardMessageCodec {
         final value = readValue(buffer) as int?;
         return value == null ? null : KeyBridgeErrorCode.values[value];
       case 130:
-        return CreateVaultKeyRequest.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : PlatformFeatureErrorCode.values[value];
       case 131:
-        return OpenVaultSessionRequest.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : NotificationPermissionCode.values[value];
       case 132:
-        return RewrapVaultKeyRequest.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : WallClockResolutionCode.values[value];
       case 133:
-        return EncryptPayloadRequest.decode(readValue(buffer)!);
+        final value = readValue(buffer) as int?;
+        return value == null ? null : ShareKindCode.values[value];
       case 134:
-        return DecryptPayloadRequest.decode(readValue(buffer)!);
+        return CreateVaultKeyRequest.decode(readValue(buffer)!);
       case 135:
-        return VaultSessionReply.decode(readValue(buffer)!);
+        return OpenVaultSessionRequest.decode(readValue(buffer)!);
       case 136:
-        return PayloadReply.decode(readValue(buffer)!);
+        return RewrapVaultKeyRequest.decode(readValue(buffer)!);
       case 137:
-        return StatusReply.decode(readValue(buffer)!);
+        return EncryptPayloadRequest.decode(readValue(buffer)!);
       case 138:
-        return RecoveryCeremonyReply.decode(readValue(buffer)!);
+        return DecryptPayloadRequest.decode(readValue(buffer)!);
       case 139:
-        return ConfirmRecoveryKeyRequest.decode(readValue(buffer)!);
+        return VaultSessionReply.decode(readValue(buffer)!);
       case 140:
-        return OpenVaultWithRecoveryRequest.decode(readValue(buffer)!);
+        return PayloadReply.decode(readValue(buffer)!);
       case 141:
-        return SensitiveClipboardRequest.decode(readValue(buffer)!);
+        return StatusReply.decode(readValue(buffer)!);
       case 142:
+        return RecoveryCeremonyReply.decode(readValue(buffer)!);
+      case 143:
+        return ConfirmRecoveryKeyRequest.decode(readValue(buffer)!);
+      case 144:
+        return OpenVaultWithRecoveryRequest.decode(readValue(buffer)!);
+      case 145:
+        return SensitiveClipboardRequest.decode(readValue(buffer)!);
+      case 146:
         return BiometricStatusReply.decode(readValue(buffer)!);
+      case 147:
+        return FeatureStatusReply.decode(readValue(buffer)!);
+      case 148:
+        return NotificationPermissionReply.decode(readValue(buffer)!);
+      case 149:
+        return LauncherActionReply.decode(readValue(buffer)!);
+      case 150:
+        return WallClockRequest.decode(readValue(buffer)!);
+      case 151:
+        return WallClockReply.decode(readValue(buffer)!);
+      case 152:
+        return SafeReminderRequest.decode(readValue(buffer)!);
+      case 153:
+        return InboundShareDescriptorReply.decode(readValue(buffer)!);
+      case 154:
+        return InboundShareListReply.decode(readValue(buffer)!);
+      case 155:
+        return InboundShareChunkRequest.decode(readValue(buffer)!);
+      case 156:
+        return InboundShareChunkReply.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -1250,6 +1896,252 @@ class KeyBridgeHostApi {
       isNullValid: false,
     );
     return pigeonVar_replyValue! as BiometricStatusReply;
+  }
+
+  Future<NotificationPermissionReply> notificationPermissionStatus() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.notificationPermissionStatus$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as NotificationPermissionReply;
+  }
+
+  Future<NotificationPermissionReply> requestNotificationPermission() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.requestNotificationPermission$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as NotificationPermissionReply;
+  }
+
+  Future<FeatureStatusReply> openNotificationSettings() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.openNotificationSettings$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as FeatureStatusReply;
+  }
+
+  Future<WallClockReply> resolveWallClock(WallClockRequest request) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.resolveWallClock$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[request],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as WallClockReply;
+  }
+
+  Future<FeatureStatusReply> replaceReminder(
+    SafeReminderRequest request,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.replaceReminder$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[request],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as FeatureStatusReply;
+  }
+
+  Future<FeatureStatusReply> cancelReminder(String syntheticId) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.cancelReminder$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[syntheticId],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as FeatureStatusReply;
+  }
+
+  Future<FeatureStatusReply> installLauncherShortcuts() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.installLauncherShortcuts$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as FeatureStatusReply;
+  }
+
+  Future<LauncherActionReply> consumeLauncherAction() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.consumeLauncherAction$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as LauncherActionReply;
+  }
+
+  Future<InboundShareListReply> listInboundShares() async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.listInboundShares$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(null);
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as InboundShareListReply;
+  }
+
+  Future<InboundShareChunkReply> readInboundShareChunk(
+    InboundShareChunkRequest request,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.readInboundShareChunk$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[request],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as InboundShareChunkReply;
+  }
+
+  Future<FeatureStatusReply> deleteInboundShare(String id) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.deleteInboundShare$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[id],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as FeatureStatusReply;
+  }
+
+  Future<FeatureStatusReply> purgeExpiredInboundShares(
+    int nowUtcEpochMilliseconds,
+  ) async {
+    final pigeonVar_channelName =
+        'dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.purgeExpiredInboundShares$pigeonVar_messageChannelSuffix';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[nowUtcEpochMilliseconds],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+
+    final Object? pigeonVar_replyValue = _extractReplyValueOrThrow(
+      pigeonVar_replyList,
+      pigeonVar_channelName,
+      isNullValid: false,
+    );
+    return pigeonVar_replyValue! as FeatureStatusReply;
   }
 
   Future<StatusReply> excludePathFromBackup(String absolutePath) async {

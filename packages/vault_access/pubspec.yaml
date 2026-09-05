@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: MPL-2.0
+name: localhold_vault_access
+description: Local-only application port for Localhold vault access flows.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.1
+
+dependencies:
+  localhold_vault_core:
+    path: ../vault_core
+
+dev_dependencies:
+  lints: 6.0.0
+  test: 1.31.2

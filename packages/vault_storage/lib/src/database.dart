@@ -67,6 +67,21 @@ class VaultSelections extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+@DataClassName('VaultUnlockEntryRow')
+class VaultUnlockEntries extends Table {
+  TextColumn get vaultId => text().withLength(min: 22, max: 22)();
+  IntColumn get ordinal => integer()();
+  TextColumn get publicLabel => text().withLength(min: 1, max: 80).nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {vaultId};
+
+  @override
+  List<Set<Column<Object>>> get uniqueKeys => [
+    {ordinal},
+  ];
+}
+
 @DriftDatabase(
   tables: [
     EncryptedObjects,
@@ -75,6 +90,7 @@ class VaultSelections extends Table {
     UnlockThrottles,
     MigrationJournals,
     VaultSelections,
+    VaultUnlockEntries,
   ],
 )
 class LocalholdVaultDatabase extends _$LocalholdVaultDatabase {
@@ -83,12 +99,28 @@ class LocalholdVaultDatabase extends _$LocalholdVaultDatabase {
   final bool isReadOnly;
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (migrator) async {
       await migrator.createAll();
+    },
+    onUpgrade: (migrator, from, to) async {
+      if (from < 2) {
+        await migrator.createTable(vaultUnlockEntries);
+        final existing = await (select(
+          vaultEnvelopes,
+        )..orderBy([(row) => OrderingTerm.asc(row.vaultId)])).get();
+        for (var index = 0; index < existing.length; index++) {
+          await into(vaultUnlockEntries).insert(
+            VaultUnlockEntriesCompanion.insert(
+              vaultId: existing[index].vaultId,
+              ordinal: index + 1,
+            ),
+          );
+        }
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: MPL-2.0
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'document_codec.dart';
 import 'document_repository.dart';
 import 'creation_policy.dart';
+import 'duplicates.dart';
 import 'errors.dart';
 import 'identifiers.dart';
 import 'models.dart';
 import 'repository.dart';
+import 'templates.dart';
 import 'vault_health.dart';
 
 final class VaultRecordCodec {
@@ -57,6 +60,7 @@ final class EncryptedRecordService {
     required this._creationPolicy,
     this._codec = const VaultRecordCodec(),
     this._health,
+    this._mergePlanner,
   });
 
   final CiphertextRepository _repository;
@@ -64,6 +68,7 @@ final class EncryptedRecordService {
   final VaultCreationPolicy _creationPolicy;
   final VaultRecordCodec _codec;
   final VaultHealthController? _health;
+  final RecordMergePlanner? _mergePlanner;
 
   Future<VaultRecord?> read(RecordId recordId) async {
     final object = await _repository.read(recordId.value);
@@ -184,6 +189,132 @@ final class EncryptedRecordService {
       objectId: record.id.value,
       expectedRevision: record.revision,
     );
+  }
+
+  Future<List<VaultRecord>> updateMany({
+    required Iterable<VaultRecord> proposed,
+    required DateTime now,
+  }) async {
+    _health?.requireWritable();
+    final source = proposed.toList(growable: false);
+    if (source.isEmpty) return const [];
+    if (source.map((record) => record.id.value).toSet().length !=
+        source.length) {
+      throw const VaultFailure(VaultFailureCode.invalidInput);
+    }
+    final current = <VaultRecord>[];
+    for (final proposedRecord in source) {
+      final object = await _repository.read(proposedRecord.id.value);
+      if (object == null) {
+        throw const VaultFailure(VaultFailureCode.objectNotFound);
+      }
+      final persisted = await _decrypt(object);
+      if (persisted.revision != proposedRecord.revision ||
+          persisted.typeId != proposedRecord.typeId ||
+          persisted.createdAt != proposedRecord.createdAt ||
+          persisted.conflictOf != proposedRecord.conflictOf ||
+          jsonEncode(
+                persisted.fields.map((field) => field.toJson()).toList(),
+              ) !=
+              jsonEncode(
+                proposedRecord.fields.map((field) => field.toJson()).toList(),
+              )) {
+        throw const VaultFailure(VaultFailureCode.invalidInput);
+      }
+      current.add(persisted);
+    }
+    final saved = List<VaultRecord>.generate(source.length, (index) {
+      final persisted = current[index];
+      final proposedRecord = source[index];
+      return persisted.copyWith(
+        revision: persisted.revision + 1,
+        updatedAt: now.toUtc(),
+        lifecycle: proposedRecord.lifecycle,
+        favorite: proposedRecord.favorite,
+        pinned: proposedRecord.pinned,
+        folderId: proposedRecord.folderId,
+        clearFolder: proposedRecord.folderId == null,
+        tagIds: proposedRecord.tagIds,
+      );
+    }, growable: false);
+    final replacements = <ExpectedEncryptedObject>[];
+    for (var index = 0; index < source.length; index++) {
+      replacements.add(
+        ExpectedEncryptedObject(
+          object: await _encryptedObject(saved[index]),
+          expectedRevision: source[index].revision,
+        ),
+      );
+    }
+    final repository = _repository;
+    if (repository is AtomicCiphertextRepository) {
+      await repository.replaceMany(replacements);
+    } else if (replacements.length == 1) {
+      final replacement = replacements.single;
+      await repository.replace(
+        object: replacement.object,
+        expectedRevision: replacement.expectedRevision,
+      );
+    } else {
+      throw const VaultFailure(VaultFailureCode.capabilityUnavailable);
+    }
+    return List.unmodifiable(saved);
+  }
+
+  /// Atomically replaces the selected target and moves the source to Trash.
+  ///
+  /// Both records are re-read and authenticated here. This dedicated path is
+  /// intentionally separate from the metadata-only [updateMany] contract.
+  Future<RecordMergeResult> merge({
+    required RecordMergeCommand command,
+    required DateTime now,
+  }) async {
+    _health?.requireWritable();
+    final repository = _repository;
+    if (repository is! AtomicCiphertextRepository) {
+      throw const VaultFailure(VaultFailureCode.capabilityUnavailable);
+    }
+    final targetObject = await repository.read(command.targetId.value);
+    final sourceObject = await repository.read(command.sourceId.value);
+    if (targetObject == null || sourceObject == null) {
+      throw const VaultFailure(VaultFailureCode.objectNotFound);
+    }
+    if (targetObject.revision != command.expectedTargetRevision ||
+        sourceObject.revision != command.expectedSourceRevision) {
+      throw const VaultFailure(VaultFailureCode.revisionConflict);
+    }
+    final target = await _decrypt(targetObject);
+    final source = await _decrypt(sourceObject);
+    final planner =
+        _mergePlanner ??
+        RecordMergePlanner(definitions: BuiltInTemplateCatalog.all);
+    final preview = planner.prepare(target: target, source: source);
+    final proposed = planner.apply(
+      preview: preview,
+      choices: command.choices,
+      now: now,
+    );
+    final savedTarget = proposed.target.copyWith(
+      revision: target.revision + 1,
+      updatedAt: now.toUtc(),
+    );
+    final savedSource = proposed.source.copyWith(
+      revision: source.revision + 1,
+      updatedAt: now.toUtc(),
+    );
+    final targetEncrypted = await _encryptedObject(savedTarget);
+    final sourceEncrypted = await _encryptedObject(savedSource);
+    await repository.replaceMany([
+      ExpectedEncryptedObject(
+        object: targetEncrypted,
+        expectedRevision: target.revision,
+      ),
+      ExpectedEncryptedObject(
+        object: sourceEncrypted,
+        expectedRevision: source.revision,
+      ),
+    ]);
+    return RecordMergeResult(target: savedTarget, source: savedSource);
   }
 
   Future<void> _create(VaultRecord record) async {

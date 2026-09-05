@@ -68,6 +68,34 @@ void main() {
     expect(row.objectId, object.objectId);
     expect(row.reasonCode, VaultFailureCode.integrityFailure.name);
   });
+
+  test('replaceMany is all-or-nothing on revision conflict', () async {
+    final repository = DriftCiphertextRepository(
+      database,
+      vaultId: VaultId.generate(),
+    );
+    final first = _object();
+    final second = _object();
+    await repository.create(first);
+    await repository.create(second);
+
+    await expectLater(
+      repository.replaceMany([
+        ExpectedEncryptedObject(
+          object: _object(id: first.objectId, revision: 2),
+          expectedRevision: 1,
+        ),
+        ExpectedEncryptedObject(
+          object: _object(id: second.objectId, revision: 2),
+          expectedRevision: 9,
+        ),
+      ]),
+      throwsA(_failure(VaultFailureCode.revisionConflict)),
+    );
+
+    expect((await repository.read(first.objectId))!.revision, 1);
+    expect((await repository.read(second.objectId))!.revision, 1);
+  });
 }
 
 EncryptedObject _object({String? id, int revision = 1}) => EncryptedObject(

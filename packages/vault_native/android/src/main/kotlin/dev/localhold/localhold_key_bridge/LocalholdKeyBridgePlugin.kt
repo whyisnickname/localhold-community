@@ -21,6 +21,8 @@ import androidx.fragment.app.FragmentActivity
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.plugin.common.PluginRegistry.NewIntentListener
+import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener
 import java.security.MessageDigest
 import java.io.File
 
@@ -28,11 +30,15 @@ class LocalholdKeyBridgePlugin :
     FlutterPlugin,
     ActivityAware,
     Application.ActivityLifecycleCallbacks,
-    KeyBridgeHostApi {
+    KeyBridgeHostApi,
+    NewIntentListener,
+    RequestPermissionsResultListener {
     private var service: NativeVaultCryptoService? = null
     private var activity: Activity? = null
     private var applicationContext: Context? = null
     private var biometricCoordinator: AndroidBiometricCoordinator? = null
+    private var platformFeatures: AndroidPlatformFeatures? = null
+    private var activityBinding: ActivityPluginBinding? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private var clipboardDigest: ByteArray? = null
     private var clipboardGeneration = 0L
@@ -70,6 +76,7 @@ class LocalholdKeyBridgePlugin :
             activityProvider = { activity as? FragmentActivity },
             service = { service },
         )
+        platformFeatures = AndroidPlatformFeatures(binding.applicationContext)
         KeyBridgeHostApi.setUp(binding.binaryMessenger, this)
     }
 
@@ -85,25 +92,59 @@ class LocalholdKeyBridgePlugin :
         service?.closeAll()
         service = null
         biometricCoordinator = null
+        platformFeatures = null
         applicationContext = null
         KeyBridgeHostApi.setUp(binding.binaryMessenger, null)
     }
 
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
+        activityBinding = binding
+        binding.addOnNewIntentListener(this)
+        binding.addRequestPermissionsResultListener(this)
+        platformFeatures?.attachActivity(binding.activity, binding.activity.intent)
     }
 
     override fun onDetachedFromActivityForConfigChanges() {
+        detachPlatformActivity()
         activity = null
     }
 
     override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
         activity = binding.activity
+        activityBinding = binding
+        binding.addOnNewIntentListener(this)
+        binding.addRequestPermissionsResultListener(this)
+        platformFeatures?.attachActivity(binding.activity, binding.activity.intent)
     }
 
     override fun onDetachedFromActivity() {
+        detachPlatformActivity()
         activity = null
     }
+
+    private fun detachPlatformActivity() {
+        val binding = activityBinding
+        if (binding != null) {
+            binding.removeOnNewIntentListener(this)
+            binding.removeRequestPermissionsResultListener(this)
+        }
+        platformFeatures?.detachActivity(activity)
+        activityBinding = null
+    }
+
+    override fun onNewIntent(intent: Intent): Boolean =
+        platformFeatures?.consumeIntent(intent) ?: false
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ): Boolean = platformFeatures?.onRequestPermissionsResult(
+        requestCode,
+        permissions,
+        grantResults,
+    ) ?: false
 
     override fun onActivityPaused(paused: Activity) {
         if (paused !== activity || paused.isChangingConfigurations) return
@@ -284,8 +325,47 @@ class LocalholdKeyBridgePlugin :
 
     override fun closeAllSessions(): StatusReply = requireService().closeAll()
 
+    override suspend fun notificationPermissionStatus(): NotificationPermissionReply =
+        requirePlatformFeatures().notificationPermissionStatus()
+
+    override suspend fun requestNotificationPermission(): NotificationPermissionReply =
+        requirePlatformFeatures().requestNotificationPermission()
+
+    override fun openNotificationSettings(): FeatureStatusReply =
+        requirePlatformFeatures().openNotificationSettings()
+
+    override fun resolveWallClock(request: WallClockRequest): WallClockReply =
+        requirePlatformFeatures().resolveWallClock(request)
+
+    override suspend fun replaceReminder(request: SafeReminderRequest): FeatureStatusReply =
+        requirePlatformFeatures().replaceReminder(request)
+
+    override fun cancelReminder(syntheticId: String): FeatureStatusReply =
+        requirePlatformFeatures().cancelReminder(syntheticId)
+
+    override fun installLauncherShortcuts(): FeatureStatusReply =
+        requirePlatformFeatures().installLauncherShortcuts()
+
+    override fun consumeLauncherAction(): LauncherActionReply =
+        requirePlatformFeatures().consumeLauncherAction()
+
+    override fun listInboundShares(): InboundShareListReply =
+        requirePlatformFeatures().listInboundShares()
+
+    override fun readInboundShareChunk(request: InboundShareChunkRequest): InboundShareChunkReply =
+        requirePlatformFeatures().readInboundShareChunk(request)
+
+    override fun deleteInboundShare(id: String): FeatureStatusReply =
+        requirePlatformFeatures().deleteInboundShare(id)
+
+    override fun purgeExpiredInboundShares(nowUtcEpochMilliseconds: Long): FeatureStatusReply =
+        requirePlatformFeatures().purgeExpiredInboundShares(nowUtcEpochMilliseconds)
+
     private fun requireService(): NativeVaultCryptoService =
         service ?: throw IllegalStateException("Vault crypto unavailable")
+
+    private fun requirePlatformFeatures(): AndroidPlatformFeatures =
+        platformFeatures ?: throw IllegalStateException("Platform features unavailable")
 
     private fun clipboard(): ClipboardManager =
         applicationContext?.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager

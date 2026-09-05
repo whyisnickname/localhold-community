@@ -70,6 +70,7 @@ final class _DiagnosticRuntime {
       gateway: gateway,
       sessions: sessions,
       selection: DriftVaultSelectionStore(database),
+      unlockDirectory: DriftVaultUnlockDirectoryStore(database),
       creationPolicy: const CommunityFreeVaultCreationPolicy(),
       backupExclusion: NativeBackupExclusionGateway(bridge),
       attachmentRoot: Directory(

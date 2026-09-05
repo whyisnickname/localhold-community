@@ -30,17 +30,59 @@ enum VaultFieldKind {
 
 enum RecordLifecycle { active, archived, trashed }
 
+enum TemplateCategory { accounts, money, personal, technical, custom }
+
+enum TemplateIcon {
+  account,
+  social,
+  email,
+  gaming,
+  subscription,
+  paymentCard,
+  bank,
+  identity,
+  document,
+  secureNote,
+  software,
+  wifi,
+  router,
+  server,
+  database,
+  api,
+  ssh,
+  recovery,
+  crypto,
+  custom,
+}
+
+enum FieldSection { primary, details, advanced }
+
+enum FieldSearchScope { none, standard, protected }
+
 final class FieldDefinition {
   FieldDefinition({
     required this.stableId,
     required this.kind,
     required this.defaultLabel,
     this.protected = false,
-  }) {
+    this.section = FieldSection.primary,
+    this.displayCandidate = false,
+    FieldSearchScope? searchScope,
+    this.warningCode,
+  }) : searchScope =
+           searchScope ??
+           (protected
+               ? FieldSearchScope.protected
+               : FieldSearchScope.standard) {
     if (stableId.isEmpty ||
         stableId.length > 128 ||
         defaultLabel.isEmpty ||
-        defaultLabel.length > 256) {
+        defaultLabel.length > 256 ||
+        (displayCandidate && protected) ||
+        (protected && searchScope == FieldSearchScope.standard) ||
+        (!protected && searchScope == FieldSearchScope.protected) ||
+        (warningCode != null &&
+            !RegExp(r'^[a-z0-9_]{1,64}$').hasMatch(warningCode!))) {
       throw const VaultFailure(VaultFailureCode.invalidInput);
     }
   }
@@ -49,6 +91,10 @@ final class FieldDefinition {
   final VaultFieldKind kind;
   final String defaultLabel;
   final bool protected;
+  final FieldSection section;
+  final bool displayCandidate;
+  final FieldSearchScope searchScope;
+  final String? warningCode;
 }
 
 final class RecordTypeDefinition {
@@ -57,6 +103,8 @@ final class RecordTypeDefinition {
     required this.defaultName,
     required Iterable<FieldDefinition> fields,
     this.builtIn = true,
+    this.category = TemplateCategory.custom,
+    this.icon = TemplateIcon.custom,
   }) : fields = List.unmodifiable(fields) {
     if (stableId.isEmpty ||
         stableId.length > 128 ||
@@ -73,6 +121,8 @@ final class RecordTypeDefinition {
   final String defaultName;
   final List<FieldDefinition> fields;
   final bool builtIn;
+  final TemplateCategory category;
+  final TemplateIcon icon;
 }
 
 abstract final class BuiltInRecordTypes {
@@ -124,7 +174,10 @@ final class VaultField {
 
   bool get hasUserValue => switch (value) {
     null => false,
-    final String value => value.isNotEmpty,
+    final String value =>
+      kind == VaultFieldKind.secret
+          ? value.isNotEmpty
+          : value.trim().isNotEmpty,
     final Iterable<Object?> value => value.isNotEmpty,
     final Map<Object?, Object?> value => value.isNotEmpty,
     _ => true,
@@ -170,6 +223,7 @@ final class VaultRecord {
     this.revision = 1,
     this.lifecycle = RecordLifecycle.active,
     this.favorite = false,
+    this.pinned = false,
     this.folderId,
     Iterable<TagId> tagIds = const [],
     this.conflictOf,
@@ -186,6 +240,7 @@ final class VaultRecord {
   final int revision;
   final RecordLifecycle lifecycle;
   final bool favorite;
+  final bool pinned;
   final FolderId? folderId;
   final Set<TagId> tagIds;
   final RecordId? conflictOf;
@@ -220,6 +275,7 @@ final class VaultRecord {
         revision: json['revision']! as int,
         lifecycle: RecordLifecycle.values.byName(json['lifecycle']! as String),
         favorite: json['favorite']! as bool,
+        pinned: json['pinned'] as bool? ?? false,
         folderId: switch (json['folderId']) {
           final String value => FolderId.parse(value),
           _ => null,
@@ -271,6 +327,7 @@ final class VaultRecord {
     'revision': revision,
     'lifecycle': lifecycle.name,
     'favorite': favorite,
+    'pinned': pinned,
     'folderId': folderId?.value,
     'tagIds': tagIds.map((tag) => tag.value).toList(growable: false),
     'conflictOf': conflictOf?.value,
@@ -285,6 +342,7 @@ final class VaultRecord {
     int? revision,
     RecordLifecycle? lifecycle,
     bool? favorite,
+    bool? pinned,
     FolderId? folderId,
     bool clearFolder = false,
     Iterable<TagId>? tagIds,
@@ -299,6 +357,7 @@ final class VaultRecord {
     revision: revision ?? this.revision,
     lifecycle: lifecycle ?? this.lifecycle,
     favorite: favorite ?? this.favorite,
+    pinned: pinned ?? this.pinned,
     folderId: clearFolder ? null : (folderId ?? this.folderId),
     tagIds: tagIds ?? this.tagIds,
     conflictOf: clearConflict ? null : (conflictOf ?? this.conflictOf),

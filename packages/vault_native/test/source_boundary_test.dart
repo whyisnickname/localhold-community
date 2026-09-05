@@ -210,6 +210,30 @@ void main() {
   });
 
   test(
+    'reminder and share adapters have no network or arbitrary shortcut surface',
+    () {
+      final manifest = File('android/src/main/AndroidManifest.xml')
+          .readAsStringSync();
+      final android = File(
+        'android/src/main/kotlin/dev/localhold/localhold_key_bridge/AndroidPlatformFeatures.kt',
+      ).readAsStringSync();
+      final ios = File(
+        'ios/localhold_key_bridge/Sources/localhold_key_bridge/IOSPlatformFeatures.swift',
+      ).readAsStringSync();
+
+      expect(manifest, isNot(contains('android.permission.INTERNET')));
+      expect(android, isNot(contains('HttpClient')));
+      expect(ios, isNot(contains('URLSession')));
+      for (final source in [android, ios]) {
+        expect(source, contains('localhold.add'));
+        expect(source, contains('localhold.search'));
+        expect(source, contains('localhold.lock'));
+        expect(source, isNot(contains('recordNameShortcut')));
+      }
+    },
+  );
+
+  test(
     'biometric keys cannot be created or rotated without explicit recovery',
     () {
       const wrappers = <String>[

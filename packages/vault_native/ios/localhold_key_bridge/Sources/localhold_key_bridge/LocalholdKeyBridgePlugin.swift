@@ -8,6 +8,7 @@ import UniformTypeIdentifiers
 
 public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeHostApi, @unchecked Sendable {
   private let service = IOSVaultCryptoService()
+  private let platformFeatures = IOSPlatformFeatures()
   private lazy var biometricCoordinator = IOSBiometricCoordinator(service: service)
   private weak var recoveryAlert: UIAlertController?
   private var observerTokens: [NSObjectProtocol] = []
@@ -96,6 +97,17 @@ public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeH
   public static func register(with registrar: FlutterPluginRegistrar) {
     let instance = LocalholdKeyBridgePlugin()
     KeyBridgeHostApiSetup.setUp(binaryMessenger: registrar.messenger(), api: instance)
+    registrar.addApplicationDelegate(instance)
+  }
+
+  public func application(
+    _ application: UIApplication,
+    performActionFor shortcutItem: UIApplicationShortcutItem,
+    completionHandler: @escaping (Bool) -> Void
+  ) -> Bool {
+    let accepted = platformFeatures.acceptLauncherShortcut(shortcutItem.type)
+    completionHandler(accepted)
+    return accepted
   }
 
   func createVaultKey(request: CreateVaultKeyRequest) throws -> VaultSessionReply {
@@ -232,6 +244,54 @@ public final class LocalholdKeyBridgePlugin: NSObject, FlutterPlugin, KeyBridgeH
 
   func biometricStatus(vaultId: String) throws -> BiometricStatusReply {
     biometricCoordinator.status(vaultId)
+  }
+
+  func notificationPermissionStatus() async throws -> NotificationPermissionReply {
+    await platformFeatures.notificationPermissionStatus()
+  }
+
+  func requestNotificationPermission() async throws -> NotificationPermissionReply {
+    await platformFeatures.requestNotificationPermission()
+  }
+
+  func openNotificationSettings() throws -> FeatureStatusReply {
+    platformFeatures.openNotificationSettings()
+  }
+
+  func resolveWallClock(request: WallClockRequest) throws -> WallClockReply {
+    platformFeatures.resolveWallClock(request)
+  }
+
+  func replaceReminder(request: SafeReminderRequest) async throws -> FeatureStatusReply {
+    await platformFeatures.replaceReminder(request)
+  }
+
+  func cancelReminder(syntheticId: String) throws -> FeatureStatusReply {
+    platformFeatures.cancelReminder(syntheticId)
+  }
+
+  func installLauncherShortcuts() throws -> FeatureStatusReply {
+    platformFeatures.installLauncherShortcuts()
+  }
+
+  func consumeLauncherAction() throws -> LauncherActionReply {
+    platformFeatures.consumeLauncherAction()
+  }
+
+  func listInboundShares() throws -> InboundShareListReply {
+    platformFeatures.listInboundShares()
+  }
+
+  func readInboundShareChunk(request: InboundShareChunkRequest) throws -> InboundShareChunkReply {
+    platformFeatures.readInboundShareChunk(request)
+  }
+
+  func deleteInboundShare(id: String) throws -> FeatureStatusReply {
+    platformFeatures.deleteInboundShare(id)
+  }
+
+  func purgeExpiredInboundShares(nowUtcEpochMilliseconds: Int64) throws -> FeatureStatusReply {
+    platformFeatures.purgeExpiredInboundShares(nowUtcEpochMilliseconds)
   }
 
   func excludePathFromBackup(absolutePath: String) throws -> StatusReply {

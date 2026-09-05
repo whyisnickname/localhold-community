@@ -72,3 +72,15 @@ extension type const OrganizationId._(String value) {
   factory OrganizationId.parse(String value) =>
       OrganizationId._(OpaqueId.requireValid(value));
 }
+
+extension type const ReminderId._(String value) {
+  factory ReminderId.generate() => ReminderId._(OpaqueId.generate());
+  factory ReminderId.parse(String value) =>
+      ReminderId._(OpaqueId.requireValid(value));
+}
+
+extension type const PendingShareId._(String value) {
+  factory PendingShareId.generate() => PendingShareId._(OpaqueId.generate());
+  factory PendingShareId.parse(String value) =>
+      PendingShareId._(OpaqueId.requireValid(value));
+}

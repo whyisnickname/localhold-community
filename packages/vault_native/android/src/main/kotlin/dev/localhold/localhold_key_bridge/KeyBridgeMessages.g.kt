@@ -208,6 +208,60 @@ enum class KeyBridgeErrorCode(val raw: Int) {
   }
 }
 
+enum class PlatformFeatureErrorCode(val raw: Int) {
+  INVALID_REQUEST(0),
+  PERMISSION_DENIED(1),
+  PERMISSION_RESTRICTED(2),
+  NOT_FOUND(3),
+  PLATFORM_UNAVAILABLE(4),
+  INTERNAL_FAILURE(5);
+
+  companion object {
+    fun ofRaw(raw: Int): PlatformFeatureErrorCode? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
+enum class NotificationPermissionCode(val raw: Int) {
+  NOT_DETERMINED(0),
+  DENIED(1),
+  RESTRICTED(2),
+  AUTHORIZED(3);
+
+  companion object {
+    fun ofRaw(raw: Int): NotificationPermissionCode? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
+enum class WallClockResolutionCode(val raw: Int) {
+  UNIQUE(0),
+  EARLIER(1),
+  LATER(2),
+  GAP_ADJUSTED(3);
+
+  companion object {
+    fun ofRaw(raw: Int): WallClockResolutionCode? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
+enum class ShareKindCode(val raw: Int) {
+  TEXT(0),
+  URL(1),
+  FILE(2),
+  IMAGE(3);
+
+  companion object {
+    fun ofRaw(raw: Int): ShareKindCode? {
+      return values().firstOrNull { it.raw == raw }
+    }
+  }
+}
+
 /** Generated class from Pigeon that represents data sent in messages. */
 data class CreateVaultKeyRequest (
   val vaultId: String,
@@ -768,6 +822,464 @@ data class BiometricStatusReply (
     return "KeyBridgeMessage(<redacted>)"
   }
 }
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class FeatureStatusReply (
+  val error: PlatformFeatureErrorCode? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): FeatureStatusReply {
+      val error = pigeonVar_list[0] as PlatformFeatureErrorCode?
+      return FeatureStatusReply(error)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      error,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as FeatureStatusReply
+    return KeyBridgeMessagesPigeonUtils.deepEquals(this.error, other.error)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.error)
+    return result
+  }
+  override fun toString(): String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class NotificationPermissionReply (
+  val state: NotificationPermissionCode,
+  val error: PlatformFeatureErrorCode? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): NotificationPermissionReply {
+      val state = pigeonVar_list[0] as NotificationPermissionCode
+      val error = pigeonVar_list[1] as PlatformFeatureErrorCode?
+      return NotificationPermissionReply(state, error)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      state,
+      error,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as NotificationPermissionReply
+    return KeyBridgeMessagesPigeonUtils.deepEquals(this.state, other.state) && KeyBridgeMessagesPigeonUtils.deepEquals(this.error, other.error)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.state)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.error)
+    return result
+  }
+  override fun toString(): String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class LauncherActionReply (
+  val actionCode: Long,
+  val error: PlatformFeatureErrorCode? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): LauncherActionReply {
+      val actionCode = pigeonVar_list[0] as Long
+      val error = pigeonVar_list[1] as PlatformFeatureErrorCode?
+      return LauncherActionReply(actionCode, error)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      actionCode,
+      error,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as LauncherActionReply
+    return KeyBridgeMessagesPigeonUtils.deepEquals(this.actionCode, other.actionCode) && KeyBridgeMessagesPigeonUtils.deepEquals(this.error, other.error)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.actionCode)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.error)
+    return result
+  }
+  override fun toString(): String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class WallClockRequest (
+  val year: Long,
+  val month: Long,
+  val day: Long,
+  val hour: Long,
+  val minute: Long,
+  val timeZoneId: String
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): WallClockRequest {
+      val year = pigeonVar_list[0] as Long
+      val month = pigeonVar_list[1] as Long
+      val day = pigeonVar_list[2] as Long
+      val hour = pigeonVar_list[3] as Long
+      val minute = pigeonVar_list[4] as Long
+      val timeZoneId = pigeonVar_list[5] as String
+      return WallClockRequest(year, month, day, hour, minute, timeZoneId)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      year,
+      month,
+      day,
+      hour,
+      minute,
+      timeZoneId,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as WallClockRequest
+    return KeyBridgeMessagesPigeonUtils.deepEquals(this.year, other.year) && KeyBridgeMessagesPigeonUtils.deepEquals(this.month, other.month) && KeyBridgeMessagesPigeonUtils.deepEquals(this.day, other.day) && KeyBridgeMessagesPigeonUtils.deepEquals(this.hour, other.hour) && KeyBridgeMessagesPigeonUtils.deepEquals(this.minute, other.minute) && KeyBridgeMessagesPigeonUtils.deepEquals(this.timeZoneId, other.timeZoneId)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.year)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.month)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.day)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.hour)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.minute)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.timeZoneId)
+    return result
+  }
+  override fun toString(): String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class WallClockReply (
+  val utcEpochMilliseconds: Long,
+  val resolution: WallClockResolutionCode,
+  val error: PlatformFeatureErrorCode? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): WallClockReply {
+      val utcEpochMilliseconds = pigeonVar_list[0] as Long
+      val resolution = pigeonVar_list[1] as WallClockResolutionCode
+      val error = pigeonVar_list[2] as PlatformFeatureErrorCode?
+      return WallClockReply(utcEpochMilliseconds, resolution, error)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      utcEpochMilliseconds,
+      resolution,
+      error,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as WallClockReply
+    return KeyBridgeMessagesPigeonUtils.deepEquals(this.utcEpochMilliseconds, other.utcEpochMilliseconds) && KeyBridgeMessagesPigeonUtils.deepEquals(this.resolution, other.resolution) && KeyBridgeMessagesPigeonUtils.deepEquals(this.error, other.error)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.utcEpochMilliseconds)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.resolution)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.error)
+    return result
+  }
+  override fun toString(): String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class SafeReminderRequest (
+  val syntheticId: String,
+  val utcEpochMilliseconds: Long,
+  val privacyCode: Long,
+  val safeName: String? = null,
+  val safeAmount: String? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): SafeReminderRequest {
+      val syntheticId = pigeonVar_list[0] as String
+      val utcEpochMilliseconds = pigeonVar_list[1] as Long
+      val privacyCode = pigeonVar_list[2] as Long
+      val safeName = pigeonVar_list[3] as String?
+      val safeAmount = pigeonVar_list[4] as String?
+      return SafeReminderRequest(syntheticId, utcEpochMilliseconds, privacyCode, safeName, safeAmount)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      syntheticId,
+      utcEpochMilliseconds,
+      privacyCode,
+      safeName,
+      safeAmount,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as SafeReminderRequest
+    return KeyBridgeMessagesPigeonUtils.deepEquals(this.syntheticId, other.syntheticId) && KeyBridgeMessagesPigeonUtils.deepEquals(this.utcEpochMilliseconds, other.utcEpochMilliseconds) && KeyBridgeMessagesPigeonUtils.deepEquals(this.privacyCode, other.privacyCode) && KeyBridgeMessagesPigeonUtils.deepEquals(this.safeName, other.safeName) && KeyBridgeMessagesPigeonUtils.deepEquals(this.safeAmount, other.safeAmount)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.syntheticId)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.utcEpochMilliseconds)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.privacyCode)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.safeName)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.safeAmount)
+    return result
+  }
+  override fun toString(): String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class InboundShareDescriptorReply (
+  val id: String,
+  val kind: ShareKindCode,
+  val byteLength: Long,
+  val receivedUtcEpochMilliseconds: Long,
+  val expiresUtcEpochMilliseconds: Long
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): InboundShareDescriptorReply {
+      val id = pigeonVar_list[0] as String
+      val kind = pigeonVar_list[1] as ShareKindCode
+      val byteLength = pigeonVar_list[2] as Long
+      val receivedUtcEpochMilliseconds = pigeonVar_list[3] as Long
+      val expiresUtcEpochMilliseconds = pigeonVar_list[4] as Long
+      return InboundShareDescriptorReply(id, kind, byteLength, receivedUtcEpochMilliseconds, expiresUtcEpochMilliseconds)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      id,
+      kind,
+      byteLength,
+      receivedUtcEpochMilliseconds,
+      expiresUtcEpochMilliseconds,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as InboundShareDescriptorReply
+    return KeyBridgeMessagesPigeonUtils.deepEquals(this.id, other.id) && KeyBridgeMessagesPigeonUtils.deepEquals(this.kind, other.kind) && KeyBridgeMessagesPigeonUtils.deepEquals(this.byteLength, other.byteLength) && KeyBridgeMessagesPigeonUtils.deepEquals(this.receivedUtcEpochMilliseconds, other.receivedUtcEpochMilliseconds) && KeyBridgeMessagesPigeonUtils.deepEquals(this.expiresUtcEpochMilliseconds, other.expiresUtcEpochMilliseconds)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.id)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.kind)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.byteLength)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.receivedUtcEpochMilliseconds)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.expiresUtcEpochMilliseconds)
+    return result
+  }
+  override fun toString(): String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class InboundShareListReply (
+  val items: List<InboundShareDescriptorReply>,
+  val error: PlatformFeatureErrorCode? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): InboundShareListReply {
+      val items = pigeonVar_list[0] as List<InboundShareDescriptorReply>
+      val error = pigeonVar_list[1] as PlatformFeatureErrorCode?
+      return InboundShareListReply(items, error)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      items,
+      error,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as InboundShareListReply
+    return KeyBridgeMessagesPigeonUtils.deepEquals(this.items, other.items) && KeyBridgeMessagesPigeonUtils.deepEquals(this.error, other.error)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.items)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.error)
+    return result
+  }
+  override fun toString(): String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class InboundShareChunkRequest (
+  val id: String,
+  val offset: Long,
+  val maximumBytes: Long
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): InboundShareChunkRequest {
+      val id = pigeonVar_list[0] as String
+      val offset = pigeonVar_list[1] as Long
+      val maximumBytes = pigeonVar_list[2] as Long
+      return InboundShareChunkRequest(id, offset, maximumBytes)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      id,
+      offset,
+      maximumBytes,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as InboundShareChunkRequest
+    return KeyBridgeMessagesPigeonUtils.deepEquals(this.id, other.id) && KeyBridgeMessagesPigeonUtils.deepEquals(this.offset, other.offset) && KeyBridgeMessagesPigeonUtils.deepEquals(this.maximumBytes, other.maximumBytes)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.id)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.offset)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.maximumBytes)
+    return result
+  }
+  override fun toString(): String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class InboundShareChunkReply (
+  val bytes: ByteArray,
+  val done: Boolean,
+  val error: PlatformFeatureErrorCode? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): InboundShareChunkReply {
+      val bytes = pigeonVar_list[0] as ByteArray
+      val done = pigeonVar_list[1] as Boolean
+      val error = pigeonVar_list[2] as PlatformFeatureErrorCode?
+      return InboundShareChunkReply(bytes, done, error)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      bytes,
+      done,
+      error,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other == null || other.javaClass != javaClass) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    val other = other as InboundShareChunkReply
+    return KeyBridgeMessagesPigeonUtils.deepEquals(this.bytes, other.bytes) && KeyBridgeMessagesPigeonUtils.deepEquals(this.done, other.done) && KeyBridgeMessagesPigeonUtils.deepEquals(this.error, other.error)
+  }
+
+  override fun hashCode(): Int {
+    var result = javaClass.hashCode()
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.bytes)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.done)
+    result = 31 * result + KeyBridgeMessagesPigeonUtils.deepHash(this.error)
+    return result
+  }
+  override fun toString(): String {
+    return "KeyBridgeMessage(<redacted>)"
+  }
+}
 private open class KeyBridgeMessagesPigeonCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
@@ -777,68 +1289,138 @@ private open class KeyBridgeMessagesPigeonCodec : StandardMessageCodec() {
         }
       }
       130.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          CreateVaultKeyRequest.fromList(it)
+        return (readValue(buffer) as Long?)?.let {
+          PlatformFeatureErrorCode.ofRaw(it.toInt())
         }
       }
       131.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          OpenVaultSessionRequest.fromList(it)
+        return (readValue(buffer) as Long?)?.let {
+          NotificationPermissionCode.ofRaw(it.toInt())
         }
       }
       132.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          RewrapVaultKeyRequest.fromList(it)
+        return (readValue(buffer) as Long?)?.let {
+          WallClockResolutionCode.ofRaw(it.toInt())
         }
       }
       133.toByte() -> {
-        return (readValue(buffer) as? List<Any?>)?.let {
-          EncryptPayloadRequest.fromList(it)
+        return (readValue(buffer) as Long?)?.let {
+          ShareKindCode.ofRaw(it.toInt())
         }
       }
       134.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          DecryptPayloadRequest.fromList(it)
+          CreateVaultKeyRequest.fromList(it)
         }
       }
       135.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          VaultSessionReply.fromList(it)
+          OpenVaultSessionRequest.fromList(it)
         }
       }
       136.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          PayloadReply.fromList(it)
+          RewrapVaultKeyRequest.fromList(it)
         }
       }
       137.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          StatusReply.fromList(it)
+          EncryptPayloadRequest.fromList(it)
         }
       }
       138.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          RecoveryCeremonyReply.fromList(it)
+          DecryptPayloadRequest.fromList(it)
         }
       }
       139.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ConfirmRecoveryKeyRequest.fromList(it)
+          VaultSessionReply.fromList(it)
         }
       }
       140.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          OpenVaultWithRecoveryRequest.fromList(it)
+          PayloadReply.fromList(it)
         }
       }
       141.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          SensitiveClipboardRequest.fromList(it)
+          StatusReply.fromList(it)
         }
       }
       142.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
+          RecoveryCeremonyReply.fromList(it)
+        }
+      }
+      143.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          ConfirmRecoveryKeyRequest.fromList(it)
+        }
+      }
+      144.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          OpenVaultWithRecoveryRequest.fromList(it)
+        }
+      }
+      145.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          SensitiveClipboardRequest.fromList(it)
+        }
+      }
+      146.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
           BiometricStatusReply.fromList(it)
+        }
+      }
+      147.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          FeatureStatusReply.fromList(it)
+        }
+      }
+      148.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          NotificationPermissionReply.fromList(it)
+        }
+      }
+      149.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          LauncherActionReply.fromList(it)
+        }
+      }
+      150.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          WallClockRequest.fromList(it)
+        }
+      }
+      151.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          WallClockReply.fromList(it)
+        }
+      }
+      152.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          SafeReminderRequest.fromList(it)
+        }
+      }
+      153.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          InboundShareDescriptorReply.fromList(it)
+        }
+      }
+      154.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          InboundShareListReply.fromList(it)
+        }
+      }
+      155.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          InboundShareChunkRequest.fromList(it)
+        }
+      }
+      156.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          InboundShareChunkReply.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -850,56 +1432,112 @@ private open class KeyBridgeMessagesPigeonCodec : StandardMessageCodec() {
         stream.write(129)
         writeValue(stream, value.raw.toLong())
       }
-      is CreateVaultKeyRequest -> {
+      is PlatformFeatureErrorCode -> {
         stream.write(130)
-        writeValue(stream, value.toList())
+        writeValue(stream, value.raw.toLong())
       }
-      is OpenVaultSessionRequest -> {
+      is NotificationPermissionCode -> {
         stream.write(131)
-        writeValue(stream, value.toList())
+        writeValue(stream, value.raw.toLong())
       }
-      is RewrapVaultKeyRequest -> {
+      is WallClockResolutionCode -> {
         stream.write(132)
-        writeValue(stream, value.toList())
+        writeValue(stream, value.raw.toLong())
       }
-      is EncryptPayloadRequest -> {
+      is ShareKindCode -> {
         stream.write(133)
-        writeValue(stream, value.toList())
+        writeValue(stream, value.raw.toLong())
       }
-      is DecryptPayloadRequest -> {
+      is CreateVaultKeyRequest -> {
         stream.write(134)
         writeValue(stream, value.toList())
       }
-      is VaultSessionReply -> {
+      is OpenVaultSessionRequest -> {
         stream.write(135)
         writeValue(stream, value.toList())
       }
-      is PayloadReply -> {
+      is RewrapVaultKeyRequest -> {
         stream.write(136)
         writeValue(stream, value.toList())
       }
-      is StatusReply -> {
+      is EncryptPayloadRequest -> {
         stream.write(137)
         writeValue(stream, value.toList())
       }
-      is RecoveryCeremonyReply -> {
+      is DecryptPayloadRequest -> {
         stream.write(138)
         writeValue(stream, value.toList())
       }
-      is ConfirmRecoveryKeyRequest -> {
+      is VaultSessionReply -> {
         stream.write(139)
         writeValue(stream, value.toList())
       }
-      is OpenVaultWithRecoveryRequest -> {
+      is PayloadReply -> {
         stream.write(140)
         writeValue(stream, value.toList())
       }
-      is SensitiveClipboardRequest -> {
+      is StatusReply -> {
         stream.write(141)
         writeValue(stream, value.toList())
       }
-      is BiometricStatusReply -> {
+      is RecoveryCeremonyReply -> {
         stream.write(142)
+        writeValue(stream, value.toList())
+      }
+      is ConfirmRecoveryKeyRequest -> {
+        stream.write(143)
+        writeValue(stream, value.toList())
+      }
+      is OpenVaultWithRecoveryRequest -> {
+        stream.write(144)
+        writeValue(stream, value.toList())
+      }
+      is SensitiveClipboardRequest -> {
+        stream.write(145)
+        writeValue(stream, value.toList())
+      }
+      is BiometricStatusReply -> {
+        stream.write(146)
+        writeValue(stream, value.toList())
+      }
+      is FeatureStatusReply -> {
+        stream.write(147)
+        writeValue(stream, value.toList())
+      }
+      is NotificationPermissionReply -> {
+        stream.write(148)
+        writeValue(stream, value.toList())
+      }
+      is LauncherActionReply -> {
+        stream.write(149)
+        writeValue(stream, value.toList())
+      }
+      is WallClockRequest -> {
+        stream.write(150)
+        writeValue(stream, value.toList())
+      }
+      is WallClockReply -> {
+        stream.write(151)
+        writeValue(stream, value.toList())
+      }
+      is SafeReminderRequest -> {
+        stream.write(152)
+        writeValue(stream, value.toList())
+      }
+      is InboundShareDescriptorReply -> {
+        stream.write(153)
+        writeValue(stream, value.toList())
+      }
+      is InboundShareListReply -> {
+        stream.write(154)
+        writeValue(stream, value.toList())
+      }
+      is InboundShareChunkRequest -> {
+        stream.write(155)
+        writeValue(stream, value.toList())
+      }
+      is InboundShareChunkReply -> {
+        stream.write(156)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -927,6 +1565,18 @@ interface KeyBridgeHostApi {
   suspend fun openVaultWithBiometric(vaultId: String): VaultSessionReply
   suspend fun disableBiometric(sessionHandle: String): StatusReply
   fun biometricStatus(vaultId: String): BiometricStatusReply
+  suspend fun notificationPermissionStatus(): NotificationPermissionReply
+  suspend fun requestNotificationPermission(): NotificationPermissionReply
+  fun openNotificationSettings(): FeatureStatusReply
+  fun resolveWallClock(request: WallClockRequest): WallClockReply
+  suspend fun replaceReminder(request: SafeReminderRequest): FeatureStatusReply
+  fun cancelReminder(syntheticId: String): FeatureStatusReply
+  fun installLauncherShortcuts(): FeatureStatusReply
+  fun consumeLauncherAction(): LauncherActionReply
+  fun listInboundShares(): InboundShareListReply
+  fun readInboundShareChunk(request: InboundShareChunkRequest): InboundShareChunkReply
+  fun deleteInboundShare(id: String): FeatureStatusReply
+  fun purgeExpiredInboundShares(nowUtcEpochMilliseconds: Long): FeatureStatusReply
   fun excludePathFromBackup(absolutePath: String): StatusReply
   fun closeSession(sessionHandle: String): StatusReply
   fun closeAllSessions(): StatusReply
@@ -1225,6 +1875,204 @@ interface KeyBridgeHostApi {
             val vaultIdArg = args[0] as String
             val wrapped: List<Any?> = try {
               listOf(api.biometricStatus(vaultIdArg))
+            } catch (exception: Throwable) {
+              KeyBridgeMessagesPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.notificationPermissionStatus$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.notificationPermissionStatus())
+              } catch (exception: Throwable) {
+                KeyBridgeMessagesPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.requestNotificationPermission$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.requestNotificationPermission())
+              } catch (exception: Throwable) {
+                KeyBridgeMessagesPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.openNotificationSettings$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.openNotificationSettings())
+            } catch (exception: Throwable) {
+              KeyBridgeMessagesPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.resolveWallClock$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val requestArg = args[0] as WallClockRequest
+            val wrapped: List<Any?> = try {
+              listOf(api.resolveWallClock(requestArg))
+            } catch (exception: Throwable) {
+              KeyBridgeMessagesPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.replaceReminder$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val requestArg = args[0] as SafeReminderRequest
+            CoroutineScope(Dispatchers.Main).launch {
+              val wrapped: List<Any?> = try {
+                listOf(api.replaceReminder(requestArg))
+              } catch (exception: Throwable) {
+                KeyBridgeMessagesPigeonUtils.wrapError(exception)
+              }
+              reply.reply(wrapped)
+            }
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.cancelReminder$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val syntheticIdArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              listOf(api.cancelReminder(syntheticIdArg))
+            } catch (exception: Throwable) {
+              KeyBridgeMessagesPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.installLauncherShortcuts$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.installLauncherShortcuts())
+            } catch (exception: Throwable) {
+              KeyBridgeMessagesPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.consumeLauncherAction$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.consumeLauncherAction())
+            } catch (exception: Throwable) {
+              KeyBridgeMessagesPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.listInboundShares$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            val wrapped: List<Any?> = try {
+              listOf(api.listInboundShares())
+            } catch (exception: Throwable) {
+              KeyBridgeMessagesPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.readInboundShareChunk$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val requestArg = args[0] as InboundShareChunkRequest
+            val wrapped: List<Any?> = try {
+              listOf(api.readInboundShareChunk(requestArg))
+            } catch (exception: Throwable) {
+              KeyBridgeMessagesPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.deleteInboundShare$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val idArg = args[0] as String
+            val wrapped: List<Any?> = try {
+              listOf(api.deleteInboundShare(idArg))
+            } catch (exception: Throwable) {
+              KeyBridgeMessagesPigeonUtils.wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.localhold_vault_native.KeyBridgeHostApi.purgeExpiredInboundShares$separatedMessageChannelSuffix", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val nowUtcEpochMillisecondsArg = args[0] as Long
+            val wrapped: List<Any?> = try {
+              listOf(api.purgeExpiredInboundShares(nowUtcEpochMillisecondsArg))
             } catch (exception: Throwable) {
               KeyBridgeMessagesPigeonUtils.wrapError(exception)
             }

@@ -149,8 +149,16 @@ enum IOSInboundShareFileLock {
     )
     guard descriptor >= 0 else { return nil }
     defer { Darwin.close(descriptor) }
-    guard Darwin.flock(descriptor, LOCK_EX | LOCK_NB) == 0 else { return nil }
-    defer { _ = Darwin.flock(descriptor, LOCK_UN) }
+    var recordLock = flock()
+    recordLock.l_type = Int16(F_WRLCK)
+    recordLock.l_whence = Int16(SEEK_SET)
+    guard Darwin.fcntl(descriptor, F_SETLK, &recordLock) != -1 else { return nil }
+    defer {
+      var unlock = flock()
+      unlock.l_type = Int16(F_UNLCK)
+      unlock.l_whence = Int16(SEEK_SET)
+      _ = Darwin.fcntl(descriptor, F_SETLK, &unlock)
+    }
     return body()
   }
 }

@@ -148,3 +148,23 @@ jobs:
             flutter build ios --release --no-codesign)
           (cd packages/vault_native/example && flutter pub get --enforce-lockfile && \
             flutter build ios --debug --no-codesign)
+      - name: Run native harness tests on an available iOS simulator
+        working-directory: packages/vault_native/example
+        run: |
+          simulator_id="$(xcrun simctl list devices available --json | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          print(next(
+              device["udid"]
+              for runtime in devices.values()
+              for device in runtime
+              if device["name"].startswith("iPhone")
+          ))
+          ')"
+          test -n "$simulator_id"
+          xcodebuild test \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -destination "platform=iOS Simulator,id=$simulator_id" \
+            -parallel-testing-enabled NO \
+            CODE_SIGNING_ALLOWED=NO

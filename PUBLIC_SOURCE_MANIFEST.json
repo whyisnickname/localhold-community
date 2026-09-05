@@ -1,6 +1,6 @@
 {
   "files": {
-    ".github/workflows/community-ci.yml": "591fa5bb351030f69c4c84a65bbc7756562768918dbddfc8c1024a5d2fe87d55",
+    ".github/workflows/community-ci.yml": "9730e448a7c37f4f00d2c7f517d21263644354c9b75ca80e00303e54bb44a21d",
     "CONTRIBUTING.md": "bf9befae369c9e58e43aeee3cc0184bd806228aead6b13e95776bb80dc706e29",
     "LICENSE": "3f3d9e0024b1921b067d6f7f88deb4a60cbe7a78e76c64e3f1d7fc3b779b9d04",
     "README.md": "14fbdbe21eddfd9826fe3807817b25d52108d2a3c1d910eccc023f97aa4a1439",
@@ -369,7 +369,7 @@
     "packages/vault_native/example/ios/Runner/Runner-Bridging-Header.h": "278e5b0e6910cb75fd4ad90ed020d11659671b725e376db417d07fa1f4743e24",
     "packages/vault_native/example/ios/Runner/Runner.entitlements": "80343d14ef17f0e0c07cb7662542b87cc21f72f79cbff916024264edc0135716",
     "packages/vault_native/example/ios/Runner/SceneDelegate.swift": "6953a493f0dcf64c57e02c2c967320101a220d64ecbaada4407caa4d29b5d4dc",
-    "packages/vault_native/example/ios/RunnerTests/RunnerTests.swift": "e8d5f1eabd907311f5ee4eafdcfdc55e09a4f46e0cae73d6538b8ef947ea99f7",
+    "packages/vault_native/example/ios/RunnerTests/RunnerTests.swift": "d8114e1b7a1c728b02d4e47823ae0da13d9e84e8a56652bf916bf6cdc04d0dba",
     "packages/vault_native/example/ios/ShareExtension/Info.plist": "f845fc23cd4a2a73c71098dc8194a9dda464cf6257c1500aa17be9229cd2d12f",
     "packages/vault_native/example/ios/ShareExtension/ShareExtension.entitlements": "80343d14ef17f0e0c07cb7662542b87cc21f72f79cbff916024264edc0135716",
     "packages/vault_native/example/ios/ShareExtension/ShareViewController.swift": "46dc45b85b561d4333e714a8cb3b22537d225db84c18923c834380317ec1c485",
@@ -644,5 +644,5 @@
     "tool/verify_public_tree.py": "f3d4e59cb313b029d8743e68d0318e28293a4eb8e1cb1f89d3401907d082ca25"
   },
   "schema_version": 1,
-  "source_revision": "99ee8d9b96b2d80e3b67e6db87f1154d13c50b36"
+  "source_revision": "a1bb37db9e9166745b27513b96800e10e721b42e"
 }

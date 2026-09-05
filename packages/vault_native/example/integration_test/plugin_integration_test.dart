@@ -3,7 +3,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:localhold_vault_native/localhold_key_bridge.dart';
+import 'package:localhold_vault_core/localhold_vault_core.dart';
+import 'package:localhold_vault_native/localhold_vault_native.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -174,5 +175,54 @@ void main() {
     );
     // ignore: avoid_print
     print('STAGE4_ANDROID_INTEGRATION stale_session_rejected');
+  });
+
+  testWidgets('D08 native reminder, shortcut and share boundaries', (
+    tester,
+  ) async {
+    final features = LocalholdPlatformFeatures();
+
+    final permission = await features.status();
+    expect(permission, isA<NotificationPermissionState>());
+
+    final gap = await features.resolve(
+      ReminderWallClock(
+        year: 2026,
+        month: 3,
+        day: 29,
+        hour: 2,
+        minute: 30,
+        timeZoneId: 'Europe/Berlin',
+      ),
+    );
+    expect(gap.kind, ReminderWallClockResolutionKind.gapAdjustedForward);
+
+    final reminderId = ReminderId.generate();
+    addTearDown(() => features.cancel(reminderId));
+    await features.replace(
+      ReminderNotificationRequest(
+        syntheticId: reminderId,
+        deliveryUtc: DateTime.now().toUtc().add(const Duration(minutes: 5)),
+        privacy: ReminderPrivacy.private,
+        safeName: null,
+        safeAmount: null,
+        actions: const {
+          ReminderNotificationAction.open,
+          ReminderNotificationAction.snooze,
+        },
+      ),
+    );
+    await features.cancel(reminderId);
+
+    await features.installLauncherShortcuts();
+    expect(await features.consumeLauncherAction(), isNull);
+
+    await features.purgeExpired(DateTime.now().toUtc());
+    for (final descriptor in await features.list()) {
+      expect(descriptor.byteLength, inInclusiveRange(1, 256 * 1024 * 1024));
+      expect(descriptor.expiresAt.isAfter(descriptor.receivedAt), isTrue);
+    }
+    // ignore: avoid_print
+    print('STAGE5_D08_ANDROID_INTEGRATION boundaries_passed');
   });
 }

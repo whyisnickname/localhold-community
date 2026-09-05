@@ -31,4 +31,31 @@ final class IOSPlatformFeaturesTests: XCTestCase {
     XCTAssertEqual(features.consumeLauncherAction().action, .search)
     XCTAssertEqual(features.consumeLauncherAction().action, .none)
   }
+
+  func testInboundShareRoundTripUsesBoundedChunksAndCleanup() {
+    let store = IOSInboundShareStore()
+    XCTAssertNil(store.purge(Int64.max).error)
+    let expected = Data("d08-share-fixture".utf8)
+    XCTAssertTrue(IOSInboundShareStager.stageData(expected, kind: .text))
+
+    let descriptor = store.list().items.first
+    XCTAssertNotNil(descriptor)
+    guard let descriptor else { return }
+    let first = store.read(InboundShareChunkRequest(
+      id: descriptor.id,
+      offset: 0,
+      maximumBytes: 7
+    ))
+    let second = store.read(InboundShareChunkRequest(
+      id: descriptor.id,
+      offset: 7,
+      maximumBytes: 65536
+    ))
+    XCTAssertFalse(first.done)
+    XCTAssertTrue(second.done)
+    XCTAssertEqual(first.bytes.data + second.bytes.data, expected)
+    XCTAssertNil(store.delete(descriptor.id).error)
+    XCTAssertTrue(store.list().items.isEmpty)
+    XCTAssertFalse(IOSInboundShareStager.stageData(Data(count: 65537), kind: .text))
+  }
 }

@@ -18,6 +18,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  localhold_vault_core:
+    path: ../../vault_core
+
   localhold_vault_native:
     # When depending on this package from a real application you should use:
     #   localhold_vault_native: ^x.y.z

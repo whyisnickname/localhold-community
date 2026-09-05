@@ -139,7 +139,7 @@ packages:
     source: hosted
     version: "6.1.0"
   localhold_vault_core:
-    dependency: transitive
+    dependency: "direct main"
     description:
       path: "../../vault_core"
       relative: true

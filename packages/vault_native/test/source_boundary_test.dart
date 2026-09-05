@@ -234,6 +234,43 @@ void main() {
   );
 
   test(
+    'iOS Share Extension is app-group-only and reuses the streaming stager',
+    () {
+      final stager = File(
+        'ios/localhold_key_bridge/Sources/localhold_key_bridge/IOSInboundShareStager.swift',
+      ).readAsStringSync();
+      final extension = File(
+        'example/ios/ShareExtension/ShareViewController.swift',
+      ).readAsStringSync();
+      final project = File('example/ios/Runner.xcodeproj/project.pbxproj')
+          .readAsStringSync();
+      const group = 'group.dev.localhold.localholdKeyBridgeExample';
+      for (final path in [
+        'example/ios/Runner/Info.plist',
+        'example/ios/Runner/Runner.entitlements',
+        'example/ios/ShareExtension/Info.plist',
+        'example/ios/ShareExtension/ShareExtension.entitlements',
+      ]) {
+        expect(File(path).readAsStringSync(), contains(group), reason: path);
+      }
+      expect(stager, contains('FileHandle(forReadingFrom:'));
+      expect(
+        stager,
+        contains('containerURL(forSecurityApplicationGroupIdentifier:'),
+      );
+      expect(stager, contains('queueMaximum = 8'));
+      expect(stager, contains('queueByteMaximum = 512 * 1024 * 1024'));
+      expect(stager, isNot(contains('UIApplication')));
+      expect(stager, isNot(contains('URLSession')));
+      expect(extension, contains('loadFileRepresentation'));
+      expect(extension, isNot(contains('print(')));
+      expect(project, contains('com.apple.product-type.app-extension'));
+      expect(project, contains('APPLICATION_EXTENSION_API_ONLY = YES'));
+      expect(project, contains('IOSInboundShareStager.swift in Sources'));
+    },
+  );
+
+  test(
     'biometric keys cannot be created or rotated without explicit recovery',
     () {
       const wrappers = <String>[

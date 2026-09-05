@@ -375,13 +375,20 @@ internal object AndroidInboundShareStore {
     private const val DIRECTORY = "localhold_inbound_share_v1"
     private const val INLINE_MAX = 64 * 1024L
     private const val FILE_MAX = 256 * 1024 * 1024L
+    private const val QUEUE_MAX = 8
+    private const val QUEUE_BYTES_MAX = 512 * 1024 * 1024L
     private const val TTL = 24 * 60 * 60 * 1000L
     private val idPattern = Regex("^[A-Za-z0-9_-]{22}$")
 
+    @Synchronized
     fun stage(context: Context, intent: Intent): Boolean {
         val now = System.currentTimeMillis()
         val id = randomId()
         val directory = directory(context).apply { mkdirs() }
+        purge(context, now)
+        val pending = directory.listFiles { file -> file.extension == "payload" }.orEmpty()
+        val pendingBytes = pending.sumOf(File::length)
+        if (pending.size >= QUEUE_MAX) return false
         val payload = File(directory, "$id.payload")
         val metadataFile = File(directory, "$id.json")
         return try {
@@ -403,7 +410,9 @@ internal object AndroidInboundShareStore {
                             val read = input.read(buffer)
                             if (read < 0) break
                             total += read
-                            if (total > FILE_MAX) throw IllegalArgumentException("oversized")
+                            if (total > FILE_MAX || pendingBytes + total > QUEUE_BYTES_MAX) {
+                                throw IllegalArgumentException("oversized")
+                            }
                             output.write(buffer, 0, read)
                         }
                     }
@@ -411,7 +420,8 @@ internal object AndroidInboundShareStore {
             } else {
                 val text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT)?.toString() ?: return false
                 val bytes = text.encodeToByteArray()
-                if (bytes.isEmpty() || bytes.size > INLINE_MAX) return false
+                if (bytes.isEmpty() || bytes.size > INLINE_MAX ||
+                    pendingBytes + bytes.size > QUEUE_BYTES_MAX) return false
                 kind = if (isHttpUrl(text)) ShareKindCode.URL else ShareKindCode.TEXT
                 payload.writeBytes(bytes)
                 bytes.fill(0)
@@ -432,6 +442,7 @@ internal object AndroidInboundShareStore {
         }
     }
 
+    @Synchronized
     fun list(context: Context): InboundShareListReply = try {
         purge(context, System.currentTimeMillis())
         val items = directory(context).listFiles { file -> file.extension == "json" }.orEmpty()
@@ -441,6 +452,7 @@ internal object AndroidInboundShareStore {
         InboundShareListReply(emptyList(), PlatformFeatureErrorCode.INTERNAL_FAILURE)
     }
 
+    @Synchronized
     fun read(context: Context, request: InboundShareChunkRequest): InboundShareChunkReply = try {
         if (!idPattern.matches(request.id) || request.offset < 0 || request.maximumBytes !in 1..64 * 1024) {
             return chunkFailure(PlatformFeatureErrorCode.INVALID_REQUEST)
@@ -458,6 +470,7 @@ internal object AndroidInboundShareStore {
         chunkFailure(PlatformFeatureErrorCode.INTERNAL_FAILURE)
     }
 
+    @Synchronized
     fun delete(context: Context, id: String): FeatureStatusReply = try {
         if (!idPattern.matches(id)) return FeatureStatusReply(PlatformFeatureErrorCode.INVALID_REQUEST)
         File(directory(context), "$id.payload").delete()
@@ -467,13 +480,21 @@ internal object AndroidInboundShareStore {
         FeatureStatusReply(PlatformFeatureErrorCode.INTERNAL_FAILURE)
     }
 
+    @Synchronized
     fun purge(context: Context, now: Long): FeatureStatusReply = try {
-        directory(context).listFiles { file -> file.extension == "json" }.orEmpty().forEach { file ->
+        val directory = directory(context)
+        val activeIds = mutableSetOf<String>()
+        directory.listFiles { file -> file.extension == "json" }.orEmpty().forEach { file ->
             val value = decode(file)
             if (value == null || value.expiresUtcEpochMilliseconds <= now) {
                 file.delete()
                 File(file.parentFile, "${file.nameWithoutExtension}.payload").delete()
+            } else {
+                activeIds += value.id
             }
+        }
+        directory.listFiles { file -> file.extension == "payload" }.orEmpty().forEach { file ->
+            if (file.nameWithoutExtension !in activeIds) file.delete()
         }
         FeatureStatusReply()
     } catch (_: Throwable) {

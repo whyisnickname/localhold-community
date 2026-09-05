@@ -369,7 +369,7 @@
     "packages/vault_native/example/ios/Runner/Runner-Bridging-Header.h": "278e5b0e6910cb75fd4ad90ed020d11659671b725e376db417d07fa1f4743e24",
     "packages/vault_native/example/ios/Runner/Runner.entitlements": "80343d14ef17f0e0c07cb7662542b87cc21f72f79cbff916024264edc0135716",
     "packages/vault_native/example/ios/Runner/SceneDelegate.swift": "6953a493f0dcf64c57e02c2c967320101a220d64ecbaada4407caa4d29b5d4dc",
-    "packages/vault_native/example/ios/RunnerTests/RunnerTests.swift": "d8114e1b7a1c728b02d4e47823ae0da13d9e84e8a56652bf916bf6cdc04d0dba",
+    "packages/vault_native/example/ios/RunnerTests/RunnerTests.swift": "bb231e1037d841a04a2343946ee419bf4eb0f073b2394b67e81e489baa2dab62",
     "packages/vault_native/example/ios/ShareExtension/Info.plist": "f845fc23cd4a2a73c71098dc8194a9dda464cf6257c1500aa17be9229cd2d12f",
     "packages/vault_native/example/ios/ShareExtension/ShareExtension.entitlements": "80343d14ef17f0e0c07cb7662542b87cc21f72f79cbff916024264edc0135716",
     "packages/vault_native/example/ios/ShareExtension/ShareViewController.swift": "46dc45b85b561d4333e714a8cb3b22537d225db84c18923c834380317ec1c485",
@@ -644,5 +644,5 @@
     "tool/verify_public_tree.py": "f3d4e59cb313b029d8743e68d0318e28293a4eb8e1cb1f89d3401907d082ca25"
   },
   "schema_version": 1,
-  "source_revision": "a1bb37db9e9166745b27513b96800e10e721b42e"
+  "source_revision": "969f170833757293752931c40c0410db075d3885"
 }

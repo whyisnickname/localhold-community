@@ -2,7 +2,7 @@
 
 import Foundation
 import XCTest
-@testable import localhold_key_bridge
+@testable import localhold_vault_native
 
 final class RunnerTests: XCTestCase {
   func testD08WallClockAndShortcutAllowlist() {
